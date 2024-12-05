@@ -12,7 +12,7 @@ public class PacManGUI extends JFrame {
 	public PacManGUI() {
 		
 		// Set size and title of the frame
-		setSize(600, 600);
+		setSize(Settings.SCREEN_X, Settings.SCREEN_Y);
 		setTitle("Daniel's PacMan Game");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Close the frame when the program stops
 		

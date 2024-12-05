@@ -9,13 +9,13 @@ import javax.swing.*;
  */
 public class Board extends JPanel implements KeyListener, ActionListener{
 	
-	// Create a timer for the game for 250ms
-	private Timer gameTimer = new Timer(250, this);
+	// Create a timer for the game using the time between ticks
+	private Timer gameTimer = new Timer(Settings.TIME_BETWEEN_TICKS, this);
 	
 	// Create a new cell matrix to store every cell on the screen
-	private Cell[][] mazeArray = new Cell[25][27];
+	private Cell[][] mazeArray = new Cell[Settings.ROWS][Settings.COLUMNS];
 	
-	// Create the PacMan, which is a mover
+	// Create the PacMan, which can move
 	private Mover pacMan;
 	
 	// Creating an array to store the ghost entities
@@ -31,7 +31,7 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 	public Board() {
 		
 		// Setting the board's layout to place the cells in the right spots
-		setLayout(new GridLayout(25, 27));
+		setLayout(new GridLayout(Settings.ROWS, Settings.COLUMNS));
 		setBackground(Color.BLACK);
 		
 		// Calling the loadBoard method to load the board
@@ -136,8 +136,11 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 					.getIcon() != Icons.WALL) {
 				pacMan.setIcon(Icons.PACMAN[direction]);
 				pacMan.setDirection(direction);
+				
 			}
+			
 		}
+		
 	}
 
 	// This method triggers when a key is released
@@ -206,6 +209,7 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 					gameTimer.stop();
 					JOptionPane.showMessageDialog
 						(this, "You cleared the board!");
+					
 				}
 				
 			}
@@ -228,6 +232,7 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 		
 		// If the player is not collided, return false
 		return false;
+		
 	}
 	
 	// This method triggers when the player dies
@@ -262,21 +267,25 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 			// Set the ghost's direction to the random direction chosen
 			ghost.setDirection(dir);
 			
-			// If pacman is dead, move the ghost
+			// If pacman is alive, move the ghost
 			if (!pacMan.isDead())
 				performMove(ghost);
+			
 		}
+		
 	}
 
-	// This method starts the game
+	// This method calls on other methods when the game is running
 	public void actionPerformed(ActionEvent event) {
 
 		// Check if the event is the game timer
 		if (event.getSource() == gameTimer) {
 			
-			// Move PacMan
+			// Move PacMan and the ghosts
 			performMove(pacMan);
 			moveGhosts();
+			
+			System.out.println(gameTimer);
 		}
 		
 	}

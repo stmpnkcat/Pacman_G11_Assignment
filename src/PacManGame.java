@@ -12,5 +12,6 @@ public class PacManGame {
 		
 		// This calls the constructor of PacManGUI, initializing the GUI screen
 		new PacManGUI();
+		
 	}
 }
