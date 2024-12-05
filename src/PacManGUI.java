@@ -19,7 +19,7 @@ public class PacManGUI extends JFrame {
 		// Add the board to the main board GUI
 		add(board);
 		
-		// Adding a key listener to the board to recieve keyboard input
+		// Adding a key listener to the board to receive keyboard input
 		addKeyListener(board);
 		
 		// Showing the GUI frame

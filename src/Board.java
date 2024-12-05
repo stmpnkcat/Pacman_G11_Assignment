@@ -18,6 +18,9 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 	// Create the PacMan, which is a mover
 	private Mover pacMan;
 	
+	// Creating an array to store the ghost entities
+	private Mover[] ghostArray = new Mover[3];
+	
 	// Create a variable to keep track of how many pellets are in the board
 	private int pellets = 0;
 	
@@ -75,6 +78,15 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 						pacMan.setDirection(0);
 					}
 					
+					// Initialize the map
+					else if (lineArray[column] == '0' || lineArray[column] == '1' || lineArray[column] == '2') {
+						
+						int gNum = Character.getNumericValue(mazeArray[row][column].getItem());
+						ghostArray[gNum] = new Mover(row, column);
+						ghostArray[gNum].setIcon(Icons.GHOST[gNum]);
+						
+					}
+					
 					// Add the current cell to the board panel
 					add(mazeArray[row][column]);
 					
@@ -104,7 +116,7 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 			gameTimer.start();
 		
 		// If the player is alive and there are more pellets to be collected, move PacMan
-		else if (!pacMan.isDead && score != pellets) {
+		else if (!pacMan.isDead() && score != pellets) {
 			
 			// Get the key the user is pressing
 			int direction = key.getKeyCode() - 37;
@@ -144,8 +156,8 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 	private void performMove(Mover mover) {
 		
 		// Set the current and next cell to the cell in the array
-		Cell currentCell = mazeArray[mover.getRow()][mover.getColumn];
-		Cell nextCell = mazeArray[mover.getNextRow()][mover.getNextColumn];
+		Cell currentCell = mazeArray[mover.getRow()][mover.getColumn()];
+		Cell nextCell = mazeArray[mover.getNextRow()][mover.getNextColumn()];
 		
 		// Move them mover to the other side if they use the teleporter
 		if (mover.getColumn() == 1) {
@@ -171,6 +183,14 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 			mover.move();
 			currentCell = mazeArray[mover.getRow()][mover.getColumn()];
 			
+			// Check if the player collided
+			if (collided())
+				death();
+			
+			// If the player is not dead, set the mover image
+			else
+				currentCell.setIcon(mover.getIcon());
+			
 			// Set the image of the current cell to the mover's image
 			currentCell.setIcon(mover.getIcon());
 			
@@ -193,6 +213,60 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 		}
 		
 	}
+	
+	// This method checks if a ghost collided with the player
+	private boolean collided() {
+		
+		// Iterate through the 3 ghosts
+		for (Mover ghost : ghostArray) {
+			
+			// Check if the player is on the same cell as the ghost
+			if (ghost.getRow() == pacMan.getRow() && ghost.getColumn() == pacMan.getColumn())		
+				return true;
+			
+		}
+		
+		// If the player is not collided, return false
+		return false;
+	}
+	
+	// This method triggers when the player dies
+	private void death() {
+		
+		// Set the pacman to dead
+		pacMan.setDead(true);
+		
+		// Set the player image to dead
+		mazeArray[pacMan.getRow()][pacMan.getColumn()].setIcon(Icons.SKULL);
+		
+		// Stop the game and show death message
+		gameTimer.stop();
+		JOptionPane.showMessageDialog(this, "GAME OVER");
+		
+	}
+	
+	// Method for moving each ghost
+	private void moveGhosts() {
+		
+		// Iterate through the 3 ghosts
+		for (Mover ghost : ghostArray) {
+			
+			// Initialize the direction
+			int dir = 0;
+			
+			// Check if the movement isnt in opposite directions
+			do {
+				dir = (int)(Math.random() * 4);
+			} while (Math.abs(ghost.getDirection() - dir) == 2);
+			
+			// Set the ghost's direction to the random direction chosen
+			ghost.setDirection(dir);
+			
+			// If pacman is dead, move the ghost
+			if (!pacMan.isDead())
+				performMove(ghost);
+		}
+	}
 
 	// This method starts the game
 	public void actionPerformed(ActionEvent event) {
@@ -202,7 +276,7 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 			
 			// Move PacMan
 			performMove(pacMan);
-			
+			moveGhosts();
 		}
 		
 	}

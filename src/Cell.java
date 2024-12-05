@@ -19,9 +19,13 @@ public class Cell extends JLabel{
 		
 	}
 
-	// This method allows other classes to get the item of this cell
+	// This method allows other classes to get and set the item of this cell
 	public char getItem() {
 		return item;
+	}
+	
+	public void setItem (char item) {
+		this.item = item;
 	}
 	
 	// This method sets the icon of this cell
