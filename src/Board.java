@@ -85,7 +85,7 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 					
 					// Find PacMan in the file and create him
 					else if (lineArray[column] == Settings.ID_PLAYER) {
-						pacMan = new PacMan(row, column);
+						pacMan = new PacMan(this, row, column);
 						pacMan.setIcon(Icons.PACMAN[0]);
 						pacMan.setDirection(0);
 					}
@@ -94,7 +94,7 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 					else if (lineArray[column] == '0' || lineArray[column] == '1' || lineArray[column] == '2') {
 						
 						int gNum = Character.getNumericValue(mazeMatrix[row][column].getId());
-						ghostArray[gNum] = new Ghost(row, column);
+						ghostArray[gNum] = new Ghost(this, row, column);
 						ghostArray[gNum].setIcon(Icons.GHOST[gNum]);
 						
 					}
@@ -196,6 +196,13 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 			// Check if the mover is a ghost
 			if (mover != pacMan) {
 				
+				boolean isOverlapping = false;
+				for (Mover ghost : ghostArray) {
+					if (nextCell == mazeMatrix[ghost.getRow()][ghost.getColumn()]) isOverlapping = true;
+				}
+				
+				if (isOverlapping) return;
+				
 				// Check if the ghost just walked over the food, then replace the food
 				if (currentCell.getId() == Settings.ID_FOOD) {
 					currentCell.setIcon(Icons.FOOD);
@@ -250,7 +257,7 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 	private boolean collided() {
 		
 		// Iterate through the 3 ghosts
-		for (Mover ghost : ghostArray) {
+		for (Ghost ghost : ghostArray) {
 			
 			// Check if the player is on the same cell as the ghost
 			if (ghost.getRow() == pacMan.getRow() && ghost.getColumn() == pacMan.getColumn())		
@@ -278,148 +285,25 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 		
 	}
 	
-	// Method for moving each ghost
-	private void moveGhostsRandomly() {
-		
-		// Iterate through the 3 ghosts
-		for (Mover ghost : ghostArray) {
-			
-			// Initialize the direction variable
-			int direction = 0;
-			
-			// Check if the movement isn't in opposite directions
-			do {
-				direction = (int)(Math.random() * 4);
-			} while (Math.abs(ghost.getDirection() - direction) == 2);
-			
-			// Set the ghost's direction to the random direction chosen
-			ghost.setDirection(direction);
-			
-			// If pacman is alive, move the ghost
-			if (!pacMan.isDead())
-				performMove(ghost);
-			
-		}
-		
-	}
-	
-	private void moveGhostsPathfinding(Cell targetCell) {
-
-		// Iterate through the 3 ghosts
-		for (Mover ghost : ghostArray) {
-			
-			updatePath(ghost, targetCell);
-			Stack<Integer> directionSequence = calcDirectionSequence(ghost, targetCell);
-			
-			if (!directionSequence.isEmpty()) ghost.setDirection(directionSequence.pop());
-			
-			// If pacman is alive, move the ghost
-			if (!pacMan.isDead())
-				performMove(ghost);
-		}
-		
-	}
-	
-	private void updatePath(Mover self, Cell targetCell) {
-		for (Cell[] cellArray : mazeMatrix) {
-			for (Cell cell : cellArray) {
-				cell.setCost(Integer.MAX_VALUE);
-			}
-		}
-		
-		SortedSet<Cell> open = new TreeSet<>((o1, o2) -> {
-		    if (o1.getCost() != o2.getCost()) {
-		        return Integer.compare(o1.getCost(), o2.getCost());
-		    } else if (o1.getRow() != o2.getRow()) {
-		        return Integer.compare(o1.getRow(), o2.getRow());
-		    } else {
-		        return Integer.compare(o1.getColumn(), o2.getColumn());
-		    }
-		});
-		SortedSet<Cell> closed = new TreeSet<>((o1, o2) -> {
-		    if (o1.getCost() != o2.getCost()) {
-		        return Integer.compare(o1.getCost(), o2.getCost());
-		    } else if (o1.getRow() != o2.getRow()) {
-		        return Integer.compare(o1.getRow(), o2.getRow());
-		    } else {
-		        return Integer.compare(o1.getColumn(), o2.getColumn());
-		    }
-		});
-		Cell selfCell = mazeMatrix[self.getRow()][self.getColumn()];
-
-		selfCell.setCost(0);
-		open.add(selfCell);
-		
-		while (!open.isEmpty()) {
-			
-			Cell current = open.first();
-			open.remove(current);
-			
-			closed.add(current);
-			
-			if (current == targetCell) break;
-			
-			Cell[] neighbours = {mazeMatrix[current.getRow()-1][current.getColumn()], mazeMatrix[current.getRow()+1][current.getColumn()],
-			                     mazeMatrix[current.getRow()][current.getColumn()-1], mazeMatrix[current.getRow()][current.getColumn()+1]};
-			
-			for (Cell neighbour : neighbours) {
-				if (neighbour.getId() == Settings.ID_WALL || neighbour.getId() == Settings.ID_DOOR || closed.contains(neighbour))
-					continue;
-				
-				else if (current.getCost() + 1 < neighbour.getCost() || !open.contains(neighbour)) {
-					neighbour.setCost(current.getCost() + 1);
-					neighbour.setParent(current.getRow(), current.getColumn());
-					if (!open.contains(neighbour))
-						open.add(neighbour);
-					
-				}
-				
-			}
-			
-		}
-		
-	}
-	
-	private Stack<Integer> calcDirectionSequence (Mover self, Cell target) {
-
-		Stack<Integer> directionStack = new Stack<>();
-		
-		int currentRow = target.getRow();
-		int currentColumn = target.getColumn();
-		
-		int dRow = 0;
-		int dColumn = 0;
-		
-		Cell current = mazeMatrix[currentRow][currentColumn];
-		
-		int direction = -1;
-		
-		while (true) {
-			currentRow = current.getRow();
-			currentColumn = current.getColumn();
-			
-			current = mazeMatrix[current.getParentRow()][current.getParentColumn()];
-			
-			if (currentRow == self.getRow() && currentColumn == self.getColumn())
-				return directionStack;
-			
-			dRow = currentRow - current.getRow();
-			dColumn = currentColumn - current.getColumn();
-			
-			// Sending the direction value based on the delta values
-			if (dRow == 0 && dColumn == -1)
-				direction = 0;
-			else if (dRow == -1 && dColumn == 0)
-				direction = 1;
-			else if (dRow == 0 && dColumn == 1)
-				direction = 2;
+	public void moveGhosts() {
+		for (Ghost ghost : ghostArray) {
+			// Move PacMan and the ghosts
+			if (elapsedTimeInSEC <= 1)
+				ghost.movePath(mazeMatrix[pacMan.getRow()][pacMan.getColumn()]);
+			else if (elapsedTimeInSEC % 10 >= 0 && elapsedTimeInSEC % 10 <= 4)
+				ghost.moveRandomly();
 			else
-				direction = 3;
+				ghost.movePath(mazeMatrix[pacMan.getRow()][pacMan.getColumn()]);
 			
-			directionStack.add(direction);
-			
+			// If pacman is alive, move the ghost
+			if (!pacMan.isDead())
+				performMove(ghost);
+					
 		}
-		
+	}
+	
+	public Cell[][] getMazeMatrix(){
+		return mazeMatrix;
 	}
 
 	// This method calls on other methods when the game is running
@@ -428,23 +312,14 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 		// Increment the elapsed time by the time between ticks
 		elapsedTimeInSEC += (double)Settings.TIME_BETWEEN_TICKS / 1000;
 		
-		// Check if the event is the game timer
+		// Check if a tick has passed
 		if (event.getSource() == gameTimer) {
 			
-			// Move PacMan and the ghosts
+			moveGhosts();
 			performMove(pacMan);
-			if (elapsedTimeInSEC <= 1)
-				moveGhostsPathfinding(mazeMatrix[9][13]);
-			else if (elapsedTimeInSEC <= 4)
-				moveGhostsRandomly();
-			else 
-				if (elapsedTimeInSEC % 10 >= 0 && elapsedTimeInSEC % 10 <= 4)
-					moveGhostsRandomly();
-				else
-					moveGhostsPathfinding(mazeMatrix[pacMan.getRow()][pacMan.getColumn()]);
-				
 			
 		}
 		
 	}
+
 }

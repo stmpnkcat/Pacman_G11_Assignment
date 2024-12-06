@@ -1,8 +1,8 @@
 
 public class PacMan extends Mover{
-	
-	public PacMan(int row, int column) {
-		super(row, column);
-		
+
+	public PacMan(Board board, int row, int column) {
+		super(board, row, column);
 	}
+
 }
