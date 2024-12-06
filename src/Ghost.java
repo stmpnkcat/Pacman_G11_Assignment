@@ -4,10 +4,16 @@ public class Ghost extends Mover{
 
 	private Cell[][] mazeMatrix;
 	
+	private double randomInterval;
+	
 	public Ghost(Board board, int row, int column) {
+		
 		super(board, row, column);
 
 		mazeMatrix = getMazeMatrix();
+		
+		randomInterval = Math.random() * 9;
+		
 	}
 	
 	public void moveRandomly() {
@@ -16,12 +22,14 @@ public class Ghost extends Mover{
 		int direction = 0;
 		
 		// Check if the movement isn't in opposite directions
-		do {
+		while (true) {
 			direction = (int)(Math.random() * 4);
-		} while (Math.abs(this.getDirection() - direction) == 2 && mazeMatrix[this.getNextColumn()][this.getNextColumn()].getId() == Settings.ID_WALL);
+			setDirection(direction);
+			if (Math.abs(this.getDirection() - direction) != 2 & 
+					mazeMatrix[this.getNextRow()][this.getNextColumn()].getId() != Settings.ID_WALL) 
+				break;
+		}
 		
-		// Set the ghost's direction to the random direction chosen
-		this.setDirection(direction);
 	}
 	
 	public void movePath(Cell targetCell) {
@@ -30,6 +38,14 @@ public class Ghost extends Mover{
 		Stack<Integer> directionSequence = calcDirectionSequence(targetCell);
 		
 		if (!directionSequence.isEmpty()) this.setDirection(directionSequence.pop());
+	}
+
+	public double getRandomInterval() {
+		return randomInterval;
+	}
+
+	public void setRandomInterval(double randomInterval) {
+		this.randomInterval = randomInterval;
 	}
 
 }

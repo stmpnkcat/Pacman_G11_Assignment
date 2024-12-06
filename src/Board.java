@@ -1,19 +1,8 @@
-import java.awt.Color;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.*;
+import javax.swing.*;
 import java.util.Scanner;
-import java.util.SortedSet;
-import java.util.Stack;
-import java.util.TreeSet;
-
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.Timer;
 
 /*
  * This class is a panel that displays the actual game on the frame
@@ -49,6 +38,8 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 		
 		// Calling the loadBoard method to load the board
 		loadBoard("mazes/maze_1.txt");
+		
+		setVisible(true);
 	}
 	
 	// This method loads the board using the file path
@@ -184,9 +175,11 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 		// Move them mover to the other side if they use the teleporter
 		if (mover.getColumn() == 1) {
 			mover.setColumn(25);
+			mover.setDirection(0);
 			mazeMatrix[12][1].setIcon(Icons.DOOR);
 		} else if (mover.getColumn() == 25) {
 			mover.setColumn(1);
+			mover.setDirection(2);
 			mazeMatrix[12][25].setIcon(Icons.DOOR);
 		}
 		
@@ -198,7 +191,8 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 				
 				boolean isOverlapping = false;
 				for (Mover ghost : ghostArray) {
-					if (nextCell == mazeMatrix[ghost.getRow()][ghost.getColumn()]) isOverlapping = true;
+					if (nextCell == mazeMatrix[ghost.getRow()][ghost.getColumn()]) 
+						isOverlapping = true;
 				}
 				
 				if (isOverlapping) return;
@@ -287,11 +281,12 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 	
 	public void moveGhosts() {
 		for (Ghost ghost : ghostArray) {
+			
 			// Move PacMan and the ghosts
 			if (elapsedTimeInSEC <= 1)
 				ghost.movePath(mazeMatrix[pacMan.getRow()][pacMan.getColumn()]);
-			else if (elapsedTimeInSEC % 10 >= 0 && elapsedTimeInSEC % 10 <= 4)
-				ghost.moveRandomly();
+//			else if (elapsedTimeInSEC % 10 >= 0 && elapsedTimeInSEC % 10 <= ghost.getRandomInterval())
+//				ghost.moveRandomly();
 			else
 				ghost.movePath(mazeMatrix[pacMan.getRow()][pacMan.getColumn()]);
 			
@@ -300,10 +295,20 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 				performMove(ghost);
 					
 		}
+		
 	}
 	
 	public Cell[][] getMazeMatrix(){
 		return mazeMatrix;
+	}
+	
+	public char getIdOfMover(int row, int column) {
+		for (Ghost ghost : ghostArray) {
+			if (ghost.getRow() == row && ghost.getColumn() == column) return Settings.ID_GHOST; 
+		}
+		if (pacMan.getRow() == row && pacMan.getColumn() == column) return Settings.ID_PLAYER;
+		
+		return '_';
 	}
 
 	// This method calls on other methods when the game is running
@@ -314,9 +319,9 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 		
 		// Check if a tick has passed
 		if (event.getSource() == gameTimer) {
-			
-			moveGhosts();
+
 			performMove(pacMan);
+			moveGhosts();
 			
 		}
 		

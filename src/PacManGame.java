@@ -11,7 +11,7 @@ public class PacManGame {
 	public static void main (String[] args) {
 		
 		// This calls the constructor of PacManGUI, initializing the GUI screen
-		new PacManGUI();
+		new TitlePage();
 		
 	}
 }

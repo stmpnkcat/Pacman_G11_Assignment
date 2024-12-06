@@ -9,7 +9,11 @@ public class Cell extends JLabel{
 	private char id;
 	private int row;
 	private int column;
-	private int cost; // used for pathfinding
+	// used for pathfinding
+	private int costG; // path to the ghost
+	private int costH; // path to the target cell (estimate)
+	private int cost; // total cost of this route
+
 	private int parentRow;
 	private int parentColumn;
 
@@ -74,7 +78,22 @@ public class Cell extends JLabel{
 		this.column = column;
 	}
 
-	
+	public int getCostG() {
+		return costG;
+	}
+
+	public void setCostG(int costG) {
+		this.costG = costG;
+	}
+
+	public int getCostH() {
+		return costH;
+	}
+
+	public void setCostH(int costH) {
+		this.costH = costH;
+	}
+
 	// This method sets the icon of this cell
 	private void setIdIcon() {
 		

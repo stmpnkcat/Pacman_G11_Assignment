@@ -1,7 +1,4 @@
-import java.util.SortedSet;
-import java.util.Stack;
-import java.util.TreeSet;
-
+import java.util.*;
 import javax.swing.JLabel;
 
 /*
@@ -33,57 +30,87 @@ public class Mover extends JLabel{
 		mazeMatrix = board.getMazeMatrix();
 	}
 
+	//https://www.youtube.com/watch?v=-L-WgKMFuhE
+	//used pseudocode
 	public void updatePath(Cell targetCell) {
 		for (Cell[] cellArray : mazeMatrix) {
 			for (Cell cell : cellArray) {
+				cell.setCostG(Integer.MAX_VALUE);
+				cell.setCostH(Integer.MAX_VALUE);
 				cell.setCost(Integer.MAX_VALUE);
 			}
 		}
 		
+		//https://stackoverflow.com/questions/38066291/how-to-define-comparator-on-sortedset-like-treeset
 		SortedSet<Cell> open = new TreeSet<>((o1, o2) -> {
 		    if (o1.getCost() != o2.getCost()) {
+		    	System.out.println("checking cost");
 		        return Integer.compare(o1.getCost(), o2.getCost());
+		    } else if (o1.getCostG() != o2.getCostG()) {
+		    	System.out.println("checking costG");
+		        return Integer.compare(o1.getCostG(), o2.getCostG());
+		    } else if (o1.getCostH() != o2.getCostH()) {
+		    	System.out.println("checking costH");
+		        return Integer.compare(o1.getCostH(), o2.getCostH());
 		    } else if (o1.getRow() != o2.getRow()) {
+		    	System.out.println("checking row");
 		        return Integer.compare(o1.getRow(), o2.getRow());
 		    } else {
-		        return Integer.compare(o1.getColumn(), o2.getColumn());
+		    	return Integer.compare(o1.getColumn(), o2.getColumn());
 		    }
 		});
-		SortedSet<Cell> closed = new TreeSet<>((o1, o2) -> {
-		    if (o1.getCost() != o2.getCost()) {
-		        return Integer.compare(o1.getCost(), o2.getCost());
-		    } else if (o1.getRow() != o2.getRow()) {
-		        return Integer.compare(o1.getRow(), o2.getRow());
-		    } else {
-		        return Integer.compare(o1.getColumn(), o2.getColumn());
-		    }
-		});
+		SortedSet<Cell> closed = new TreeSet<>(open.comparator());
+		
 		Cell selfCell = mazeMatrix[getRow()][getColumn()];
 
-		selfCell.setCost(0);
+		selfCell.setCostG(0);
+		selfCell.setCostH(Math.abs(selfCell.getRow() - targetCell.getRow()) + 
+						Math.abs(selfCell.getColumn() - targetCell.getColumn()));
+		selfCell.setCost(selfCell.getCostH());
+		
 		open.add(selfCell);
 		
 		while (!open.isEmpty()) {
 			
 			Cell current = open.first();
+
 			open.remove(current);
 			
 			closed.add(current);
 			
 			if (current == targetCell) break;
 			
-			Cell[] neighbours = {mazeMatrix[current.getRow()-1][current.getColumn()], mazeMatrix[current.getRow()+1][current.getColumn()],
-			                     mazeMatrix[current.getRow()][current.getColumn()-1], mazeMatrix[current.getRow()][current.getColumn()+1]};
+			ArrayList<Cell> neighbours = new ArrayList<>();
 			
+			if (current.getRow() - 1 >= 0) neighbours.add(mazeMatrix[current.getRow() - 1][current.getColumn()]);
+			if (current.getColumn() - 1 >= 0) neighbours.add(mazeMatrix[current.getRow()][current.getColumn() - 1]);
+			if (current.getRow() + 1 < Settings.ROWS) neighbours.add(mazeMatrix[current.getRow() + 1][current.getColumn()]);
+			if (current.getColumn() + 1 < Settings.COLUMNS) neighbours.add(mazeMatrix[current.getRow()][current.getColumn() + 1]);
+			
+			System.out.println("checking neighbour");
 			for (Cell neighbour : neighbours) {
-				if (neighbour.getId() == Settings.ID_WALL || neighbour.getId() == Settings.ID_DOOR || closed.contains(neighbour))
+				if (neighbour.getId() == Settings.ID_WALL || closed.contains(neighbour))
 					continue;
 				
-				else if (current.getCost() + 1 < neighbour.getCost() || !open.contains(neighbour)) {
-					neighbour.setCost(current.getCost() + 1);
+				int neighbourCostH = Math.abs(neighbour.getRow() - targetCell.getRow()) + 
+						Math.abs(neighbour.getColumn() - targetCell.getColumn());
+				int neighbourCostG = current.getCostG() + 1;
+				int neighbourCost = neighbourCostH + neighbourCostG;
+				
+				if (current.getCost() < neighbourCost || !open.contains(neighbour)) {
+					
+					if (board.getIdOfMover(neighbour.getRow(), neighbour.getColumn()) == Settings.ID_GHOST) {
+						neighbourCost+=Settings.NEIGHBOURING_PENALTY;
+					}
+					
+					neighbour.setCostH(neighbourCostH);
+					neighbour.setCostG(neighbourCostG);
+					neighbour.setCost(neighbourCost);
 					neighbour.setParent(current.getRow(), current.getColumn());
-					if (!open.contains(neighbour))
+					
+					if (!open.contains(neighbour)){
 						open.add(neighbour);
+					}
 					
 				}
 				

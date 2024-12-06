@@ -11,6 +11,7 @@ public class Settings {
 	public static final int ROWS = 25;
 	public static final int COLUMNS = 27;
 	public static final int TIME_BETWEEN_TICKS = 250;
+	public static final int NEIGHBOURING_PENALTY = 10;
 	
 	// ID settings
 	public static final char ID_PLAYER = 'P';
