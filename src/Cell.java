@@ -5,39 +5,86 @@ import javax.swing.JLabel;
  */
 public class Cell extends JLabel{
 	
-	// Declare the item for this cell
-	private char item;
-	
-	// This method is a constructor which runs when a new cell is created
-	public Cell(char item) {
+	// Declare the fields
+	private char id;
+	private int row;
+	private int column;
+	private int cost; // used for pathfinding
+	private int parentRow;
+	private int parentColumn;
 
-		super();		
-		this.item = item;
+	// This method is a constructor which runs when a new cell is created
+	public Cell(char id, int row, int column) {
+
+		super();
+		this.id = id;
+		this.row = row;
+		this.column = column;
 		
 		// Setting the cell's image based on the character
-		setCodeIcon();;
+		setIdIcon();;
+		setFocusable(false);
 		
 	}
 
-	// This method allows other classes to get and set the item of this cell
-	public char getItem() {
-		return item;
+	// Setters and getters
+
+	public int getParentRow() {
+		return parentRow;
+	}
+
+	public int getParentColumn() {
+		return parentColumn;
+	}
+
+	public void setParent(int parentRow, int parentColumn) {
+		this.parentRow = parentRow;
+		this.parentColumn = parentColumn;
 	}
 	
-	public void setItem (char item) {
-		this.item = item;
+	public int getCost() {
+		return cost;
 	}
+
+	public void setCost(int cost) {
+		this.cost = cost;
+	}
+
+	public char getId() {
+		return id;
+	}
+	
+	public void setId (char id) {
+		this.id = id;
+	}
+	
+	public int getRow() {
+		return row;
+	}
+
+	public void setRow(int row) {
+		this.row = row;
+	}
+
+	public int getColumn() {
+		return column;
+	}
+
+	public void setColumn(int column) {
+		this.column = column;
+	}
+
 	
 	// This method sets the icon of this cell
-	private void setCodeIcon() {
+	private void setIdIcon() {
 		
-		if (item == 'P') setIcon(Icons.PACMAN[0]);
-		if (item == '0') setIcon(Icons.GHOST[0]);
-		if (item == '1') setIcon(Icons.GHOST[1]);
-		if (item == '2') setIcon(Icons.GHOST[2]);
-		if (item == 'W') setIcon(Icons.WALL);
-		if (item == 'F') setIcon(Icons.FOOD);
-		if (item == 'D') setIcon(Icons.DOOR);
+		if (id == Settings.ID_PLAYER) setIcon(Icons.PACMAN[0]);
+		else if (id == '0') setIcon(Icons.GHOST[0]);
+		else if (id == '1') setIcon(Icons.GHOST[1]);
+		else if (id == '2') setIcon(Icons.GHOST[2]);
+		else if (id == Settings.ID_WALL) setIcon(Icons.WALL);
+		else if (id == Settings.ID_FOOD) setIcon(Icons.FOOD);
+		else if (id == Settings.ID_DOOR) setIcon(Icons.DOOR);
 		
 	}
 }

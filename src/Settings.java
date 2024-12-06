@@ -12,5 +12,13 @@ public class Settings {
 	public static final int COLUMNS = 27;
 	public static final int TIME_BETWEEN_TICKS = 250;
 	
+	// ID settings
+	public static final char ID_PLAYER = 'P';
+	public static final char ID_GHOST = 'G'; //unused
+	public static final char ID_WALL = 'W';
+	public static final char ID_FOOD = 'F';
+	public static final char ID_DOOR = 'D';
+	public static final char ID_EMPTY = 'E';
+	
 	
 }
