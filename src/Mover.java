@@ -41,25 +41,9 @@ public class Mover extends JLabel{
 			}
 		}
 		
-		//https://stackoverflow.com/questions/38066291/how-to-define-comparator-on-sortedset-like-treeset
-		SortedSet<Cell> open = new TreeSet<>((o1, o2) -> {
-		    if (o1.getCost() != o2.getCost()) {
-		    	System.out.println("checking cost");
-		        return Integer.compare(o1.getCost(), o2.getCost());
-		    } else if (o1.getCostG() != o2.getCostG()) {
-		    	System.out.println("checking costG");
-		        return Integer.compare(o1.getCostG(), o2.getCostG());
-		    } else if (o1.getCostH() != o2.getCostH()) {
-		    	System.out.println("checking costH");
-		        return Integer.compare(o1.getCostH(), o2.getCostH());
-		    } else if (o1.getRow() != o2.getRow()) {
-		    	System.out.println("checking row");
-		        return Integer.compare(o1.getRow(), o2.getRow());
-		    } else {
-		    	return Integer.compare(o1.getColumn(), o2.getColumn());
-		    }
-		});
-		SortedSet<Cell> closed = new TreeSet<>(open.comparator());
+		
+		ArrayList<Cell> open = new ArrayList<>();
+		ArrayList<Cell> closed = new ArrayList<>();
 		
 		Cell selfCell = mazeMatrix[getRow()][getColumn()];
 
@@ -72,7 +56,10 @@ public class Mover extends JLabel{
 		
 		while (!open.isEmpty()) {
 			
-			Cell current = open.first();
+			open.sort(Comparator.comparing(Cell::getCost));
+			closed.sort(Comparator.comparing(Cell::getCost));
+			
+			Cell current = open.get(0);
 
 			open.remove(current);
 			
