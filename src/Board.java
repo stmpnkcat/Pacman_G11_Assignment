@@ -24,7 +24,7 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 	private Timer gameTimer = new Timer(Settings.TIME_BETWEEN_TICKS, this);
 	
 	// Create a stopwatch for the game in milliseconds
-	private int elapsedTimeInMS = 0;
+	private double elapsedTimeInSEC = 0;
 	
 	// Create a new cell matrix to store every cell on the screen
 	private Cell[][] mazeMatrix = new Cell[Settings.ROWS][Settings.COLUMNS];
@@ -303,12 +303,13 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 		
 	}
 	
-	private void moveGhostsPathfinding() {
+	private void moveGhostsPathfinding(Cell targetCell) {
 
 		// Iterate through the 3 ghosts
 		for (Mover ghost : ghostArray) {
-			updatePath(ghost, pacMan);
-			Stack<Integer> directionSequence = calcDirectionSequence(ghost, pacMan);
+			
+			updatePath(ghost, targetCell);
+			Stack<Integer> directionSequence = calcDirectionSequence(ghost, targetCell);
 			
 			if (!directionSequence.isEmpty()) ghost.setDirection(directionSequence.pop());
 			
@@ -319,7 +320,7 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 		
 	}
 	
-	private void updatePath(Mover self, Mover target) {
+	private void updatePath(Mover self, Cell targetCell) {
 		for (Cell[] cellArray : mazeMatrix) {
 			for (Cell cell : cellArray) {
 				cell.setCost(Integer.MAX_VALUE);
@@ -345,7 +346,6 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 		    }
 		});
 		Cell selfCell = mazeMatrix[self.getRow()][self.getColumn()];
-		Cell targetCell = mazeMatrix[target.getRow()][target.getColumn()];
 
 		selfCell.setCost(0);
 		open.add(selfCell);
@@ -380,7 +380,7 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 		
 	}
 	
-	private Stack<Integer> calcDirectionSequence (Mover self, Mover target) {
+	private Stack<Integer> calcDirectionSequence (Mover self, Cell target) {
 
 		Stack<Integer> directionStack = new Stack<>();
 		
@@ -426,14 +426,23 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 	public void actionPerformed(ActionEvent event) {
 
 		// Increment the elapsed time by the time between ticks
-		elapsedTimeInMS += Settings.TIME_BETWEEN_TICKS;
+		elapsedTimeInSEC += (double)Settings.TIME_BETWEEN_TICKS / 1000;
 		
 		// Check if the event is the game timer
 		if (event.getSource() == gameTimer) {
 			
 			// Move PacMan and the ghosts
 			performMove(pacMan);
-			moveGhostsPathfinding();
+			if (elapsedTimeInSEC <= 1)
+				moveGhostsPathfinding(mazeMatrix[9][13]);
+			else if (elapsedTimeInSEC <= 4)
+				moveGhostsRandomly();
+			else 
+				if (elapsedTimeInSEC % 10 >= 0 && elapsedTimeInSEC % 10 <= 4)
+					moveGhostsRandomly();
+				else
+					moveGhostsPathfinding(mazeMatrix[pacMan.getRow()][pacMan.getColumn()]);
+				
 			
 		}
 		
