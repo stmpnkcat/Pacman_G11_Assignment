@@ -1,37 +1,56 @@
-import java.awt.Font;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
+import javax.swing.*;
 
 public class TitlePage extends JFrame implements ActionListener{
 	
-	private JLabel backgroundLabel = new JLabel();
-	private JLabel titleLabel = new JLabel("PACMAN");
+	private JLabel titleLabel = new JLabel(Icons.TITLE);
+	
 	private JButton playButton = new JButton("PLAY");
+	
+	private JButton leaderboardButton = new JButton("LEADERBOARD");
+	
+	private JButton exitButton = new JButton("EXIT");
 	
 	public TitlePage() {
 		
-		setSize(Settings.SCREEN_X, Settings.SCREEN_Y);
-		
+		setSize(PacManGame.SCREEN_X, PacManGame.SCREEN_Y);
+		setIconImage(Icons.CHERRY.getImage());
 		setLayout(null);
 		
-		backgroundLabel.setBounds(0, 0, Settings.SCREEN_X, Settings.SCREEN_Y);
-		add(backgroundLabel);
+		setContentPane(new JLabel(Icons.TITLE_BACKGROUND));
 		
-		titleLabel.setFont(new Font("ARIAL", Font.BOLD, 40));
-		titleLabel.setBounds(150, 100, 300, 75);
+		titleLabel.setBounds(0, 50, 600, 140);
 		add(titleLabel);
 		
-		playButton.setFont(new Font("ARIAL", Font.BOLD, 40));
-		playButton.addActionListener(this);
-		playButton.setBounds(150, 400, 300, 75);
+		formatButton(playButton);
+		
+		playButton.setBounds(150, 400, 300, 50);
 		add(playButton);
 		
+		formatButton(leaderboardButton);
+		
+		leaderboardButton.setBounds(150, 450, 300, 50);
+		add(leaderboardButton);
+		
+		formatButton(exitButton);
+		
+		exitButton.setBounds(150, 500, 300, 50);
+		add(exitButton);
+		
 		setVisible(true);
+		
+	}
+	
+	private void formatButton(JButton button) {
+		
+		button.setFont(Fonts.play_font);
+		button.setForeground(Color.WHITE);
+		button.addActionListener(this);
+		button.setOpaque(false);
+		button.setContentAreaFilled(false);
+		button.setBorderPainted(false);
 		
 	}
 
@@ -43,6 +62,16 @@ public class TitlePage extends JFrame implements ActionListener{
 			dispose();
 			new PacManGUI();
 			
+		} else if (e.getSource() == leaderboardButton) {
+			
+			
+			
+		} else if (e.getSource() == exitButton) {
+			
+			System.exit(0);
+			
 		}
+		
 	}
+
 }

@@ -20,6 +20,8 @@ public class Mover extends JLabel{
 	// Declaring variable for if an entity is dead
 	private boolean isDead;
 	
+	private Cell prevCell;
+
 	// Constructor for when mover is initialized
 	public Mover(Board board, int row, int column) {
 		super();
@@ -71,12 +73,11 @@ public class Mover extends JLabel{
 			
 			if (current.getRow() - 1 >= 0) neighbours.add(mazeMatrix[current.getRow() - 1][current.getColumn()]);
 			if (current.getColumn() - 1 >= 0) neighbours.add(mazeMatrix[current.getRow()][current.getColumn() - 1]);
-			if (current.getRow() + 1 < Settings.ROWS) neighbours.add(mazeMatrix[current.getRow() + 1][current.getColumn()]);
-			if (current.getColumn() + 1 < Settings.COLUMNS) neighbours.add(mazeMatrix[current.getRow()][current.getColumn() + 1]);
+			if (current.getRow() + 1 < PacManGame.ROWS) neighbours.add(mazeMatrix[current.getRow() + 1][current.getColumn()]);
+			if (current.getColumn() + 1 < PacManGame.COLUMNS) neighbours.add(mazeMatrix[current.getRow()][current.getColumn() + 1]);
 			
-			System.out.println("checking neighbour");
 			for (Cell neighbour : neighbours) {
-				if (neighbour.getId() == Settings.ID_WALL || closed.contains(neighbour))
+				if (neighbour.getId() == PacManGame.ID_WALL || closed.contains(neighbour))
 					continue;
 				
 				int neighbourCostH = Math.abs(neighbour.getRow() - targetCell.getRow()) + 
@@ -86,8 +87,8 @@ public class Mover extends JLabel{
 				
 				if (current.getCost() < neighbourCost || !open.contains(neighbour)) {
 					
-					if (board.getIdOfMover(neighbour.getRow(), neighbour.getColumn()) == Settings.ID_GHOST) {
-						neighbourCost+=Settings.NEIGHBOURING_PENALTY;
+					if (board.getIdOfMover(neighbour.getRow(), neighbour.getColumn()) == PacManGame.ID_GHOST) {
+						neighbourCost += PacManGame.NEIGHBOURING_PENALTY;
 					}
 					
 					neighbour.setCostH(neighbourCostH);
@@ -260,6 +261,15 @@ public class Mover extends JLabel{
 
 	public void setMazeMatrix(Cell[][] mazeMatrix) {
 		this.mazeMatrix = mazeMatrix;
+	}
+	
+	public Cell getPrevCell() {
+		return prevCell;
+	}
+
+	public void setPrevCell(Cell prevCell) {
+		System.out.println(prevCell.getIcon());
+		this.prevCell = prevCell;
 	}
 	
 }

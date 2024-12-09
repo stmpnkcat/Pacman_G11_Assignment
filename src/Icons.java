@@ -5,11 +5,16 @@ import javax.swing.ImageIcon;
  */
 public class Icons {
 	
+	// Title screen background
+	public static final ImageIcon TITLE = new ImageIcon("images/title.png");
+	public static final ImageIcon TITLE_BACKGROUND = new ImageIcon("images/title_background.png");
+	
 	// Creating images for each of the tiles
 	public static final ImageIcon WALL = new ImageIcon("images/Wall.bmp");
 	public static final ImageIcon FOOD = new ImageIcon("images/Food.bmp");
 	public static final ImageIcon BLANK = new ImageIcon("images/Black.bmp");
 	public static final ImageIcon DOOR = new ImageIcon("images/Black.bmp");
+	public static final ImageIcon CHERRY = new ImageIcon("images/Cherry.bmp");
 	public static final ImageIcon SKULL = new ImageIcon("images/Skull.bmp");
 
 	// This method creates images for pacman, in each of the cardinal directions

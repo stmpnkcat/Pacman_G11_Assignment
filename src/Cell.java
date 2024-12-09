@@ -9,11 +9,11 @@ public class Cell extends JLabel{
 	private char id;
 	private int row;
 	private int column;
+	
 	// used for pathfinding
 	private int costG; // path to the ghost
 	private int costH; // path to the target cell (estimate)
 	private int cost; // total cost of this route
-
 	private int parentRow;
 	private int parentColumn;
 
@@ -97,13 +97,13 @@ public class Cell extends JLabel{
 	// This method sets the icon of this cell
 	private void setIdIcon() {
 		
-		if (id == Settings.ID_PLAYER) setIcon(Icons.PACMAN[0]);
+		if (id == PacManGame.ID_PLAYER) setIcon(Icons.PACMAN[0]);
 		else if (id == '0') setIcon(Icons.GHOST[0]);
 		else if (id == '1') setIcon(Icons.GHOST[1]);
 		else if (id == '2') setIcon(Icons.GHOST[2]);
-		else if (id == Settings.ID_WALL) setIcon(Icons.WALL);
-		else if (id == Settings.ID_FOOD) setIcon(Icons.FOOD);
-		else if (id == Settings.ID_DOOR) setIcon(Icons.DOOR);
+		else if (id == PacManGame.ID_WALL) setIcon(Icons.WALL);
+		else if (id == PacManGame.ID_FOOD) setIcon(Icons.FOOD);
+		else if (id == PacManGame.ID_DOOR) setIcon(Icons.DOOR);
 		
 	}
 }
