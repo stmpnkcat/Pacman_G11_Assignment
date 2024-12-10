@@ -32,7 +32,7 @@ public class PacManGUI extends JFrame {
 		setSize(PacManGame.SCREEN_X, PacManGame.SCREEN_Y);
 		setTitle("Daniel's PacMan Game");
 		getContentPane().setBackground(Color.BLACK);
-		setIconImage(Icons.CHERRY.getImage());
+		setIconImage(Icons.LOGO.getImage());
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Close the frame when the program stops
 		setLayout(new BorderLayout());
 		

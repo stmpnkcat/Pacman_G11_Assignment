@@ -40,6 +40,7 @@ public class Cell extends JLabel{
 		else if (id == '2') setIcon(Icons.GHOST[2]);
 		else if (id == PacManGame.ID_WALL) setIcon(Icons.WALL);
 		else if (id == PacManGame.ID_FOOD) setIcon(Icons.FOOD);
+		else if (id == PacManGame.ID_BIG_FOOD) setIcon(Icons.BIG_FOOD);
 		else if (id == PacManGame.ID_DOOR) setIcon(Icons.DOOR);
 		else if (id == PacManGame.ID_EMPTY) setIcon(Icons.BLANK);
 		

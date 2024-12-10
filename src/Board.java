@@ -14,8 +14,12 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 	// Create a timer for the game using the time between ticks
 	private Timer gameTimer = new Timer(PacManGame.TIME_BETWEEN_TICKS, this);
 	
+	private Timer stopwatch = new Timer(1, this);
+	
 	// Create a stopwatch for the game in milliseconds
-	private double elapsedTimeInSEC = 0;
+	private int elapsedTimeInMS = 0;
+	
+	private int tickCount = 0;
 	
 	// Create a new cell matrix to store every cell on the screen
 	private Cell[][] mazeMatrix = new Cell[PacManGame.ROWS][PacManGame.COLUMNS];
@@ -38,6 +42,8 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 	private int lives = PacManGame.DEFAULT_LIVES;
 	
 	private Timer deathTimer = new Timer(PacManGame.DEATH_DURATION, this);
+	
+	private Timer vulnerableTimer = new Timer(PacManGame.VULNERABLE_DURATION, this);
 	
 	// This method is the constructor called when the board is initialized
 	public Board(PacManGUI frame) {
@@ -196,7 +202,6 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 			
 			mover.setDirection(0);
 			
-			
 			if (mover == pacMan) 
 				mover.setIcon(Icons.PACMAN[0]);
 			
@@ -215,7 +220,7 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 			
 		}
 		
-		System.out.println("a");
+		nextCell = mazeMatrix[mover.getNextRow()][mover.getNextColumn()];
 		
 		// Check if the next cell is not a wall
 		if (nextCell.getId() != PacManGame.ID_WALL) {
@@ -223,23 +228,26 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 			// Check if the mover is a ghost
 			if (mover != pacMan) {
 				
-				if (nextCell.getId() == PacManGame.ID_PUSHER && mover.getDirection() == 3) 
+				if (nextCell.getId() == PacManGame.ID_PUSHER && mover.getDirection() == 3 && !mover.isDead()) 
 					return;
 				
-				if (isOverlapping(mover, nextCell))
-					return;
-				
-				if (currentCell.getId() == PacManGame.ID_PUSHER) {
+				if (currentCell.getId() == PacManGame.ID_PUSHER && !mover.isDead()) {
 					mover.setDirection(1);
 					nextCell = mazeMatrix[mover.getNextRow()][mover.getNextColumn()];
 				}
+				
+				if (isOverlapping(mover, nextCell) && !mover.isDead())
+					return;
 				
 				// Check if the ghost just walked over the food, then replace the food
 				if (currentCell.getId() == PacManGame.ID_FOOD)
 					currentCell.setIcon(Icons.FOOD);
 				
 				// Replace the cell with a blank cell
-				else 
+				else if (currentCell.getId() == PacManGame.ID_BIG_FOOD)
+					currentCell.setIcon(Icons.BIG_FOOD);
+				
+				else
 					currentCell.setIcon(Icons.BLANK);
 				
 			}
@@ -260,29 +268,28 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 					
 					Sounds.playSound("sounds/eat_dot_0.wav");
 					
-				} else if ((nextCell.getColumn() == 25 && mazeMatrix[nextCell.getRow()][1 + 1].getId() == PacManGame.ID_FOOD)){
-
-					mazeMatrix[nextCell.getRow()][1 + 1].setId(PacManGame.ID_EMPTY);
+				} else if (nextCell.getId() == PacManGame.ID_BIG_FOOD) {
 					
-					// Increment the score and mark the cell as empty
-					pelletsEaten++;
-					score += PacManGame.PELLET_SCORE;
+					nextCell.setId(PacManGame.ID_EMPTY);
+					
+					score += PacManGame.BIG_SCORE;
 					
 					frame.updateScore(score);
 					
 					Sounds.playSound("sounds/eat_dot_0.wav");
 					
-				} else if ((nextCell.getColumn() == 1 && mazeMatrix[nextCell.getRow()][25 - 1].getId() == PacManGame.ID_FOOD)){
-
-					mazeMatrix[nextCell.getRow()][25 - 1].setId(PacManGame.ID_EMPTY);
+					for (Ghost ghost : ghostArray) {
+						
+						ghost.setVulnerable(true);
+						
+						ghost.setIcon(Icons.GHOST[3]);
+						
+					}
 					
-					// Increment the score and mark the cell as empty
-					pelletsEaten++;
-					score += PacManGame.PELLET_SCORE;
-					
-					frame.updateScore(score);
-					
-					Sounds.playSound("sounds/eat_dot_0.wav");
+					if (vulnerableTimer.isRunning()) 
+						vulnerableTimer.restart();
+					else 
+						vulnerableTimer.start();
 					
 				}
 				
@@ -298,31 +305,46 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 			currentCell.setIcon(mover.getIcon());
 			
 			// Check if the player collided
-//			if (collided())
-//				death();
+			Ghost collidedGhost = collided();
 			
-			System.out.println(pellets + " " + pelletsEaten);
+//			if (collidedGhost != null) {
+//				
+//				if (!collidedGhost.isVulnerable()) {
+//
+//					death();
+//					return;
+//					
+//				} else {
+//					
+//					score += PacManGame.GHOST_SCORE;
+//					ghostDeath(collidedGhost);
+//					
+//				}
+//				
+//			}
 			
 			// Check if the player ate all the food
-			if (pelletsEaten == pellets) {
-				
+			if (pelletsEaten == pellets)
 				gameTimer.stop();
-				
-				System.out.println(mover.getIcon());
-				
-			}
 			
 		}
-		
-		System.out.println("b");
 		
 	}
 	
 	// This method triggers when the player dies
 	private void death() {
 		
+		gameTimer.stop();
+		
 		// Set the pacman to dead
 		pacMan.setDead(true);
+		
+		for (Ghost ghost : ghostArray) {
+			
+			ghost.setVulnerable(false);
+			ghost.setDead(false);
+			
+		}
 		
 		Sounds.playSound("sounds/death_0.wav");
 
@@ -336,29 +358,22 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 		
 	}
 	
-	private void moveGhosts() {
+	private void ghostDeath(Ghost ghost) {
+
+		ghost.setDead(true);
 		
-		for (Ghost ghost : ghostArray) {
+		mazeMatrix[ghost.getRow()][ghost.getColumn()].setIcon(pacMan.getIcon());
+		
+		int ghostNum = -1;
+		
+		for (int i = 0; i < ghostArray.length; i++) {
 			
-			// Move PacMan and the ghosts
+			if (ghostArray[i] == ghost)
+				ghostNum = i;
 			
-//			ghost.moveRandomly();
-			ghost.movePath(mazeMatrix[pacMan.getRow()][pacMan.getColumn()]);
-			
-			/*
-			if (elapsedTimeInSEC <= 1)
-				ghost.movePath(mazeMatrix[pacMan.getRow()][pacMan.getColumn()]);
-//			else if (elapsedTimeInSEC % 10 >= 0 && elapsedTimeInSEC % 10 <= ghost.getRandomInterval())
-//				ghost.moveRandomly();
-			else
-				ghost.movePath(mazeMatrix[pacMan.getRow()][pacMan.getColumn()]);
-			*/
-			
-			// If pacman is alive, move the ghost
-			if (!pacMan.isDead())
-				performMove(ghost);
-					
 		}
+		
+		ghost.setIcon(Icons.GHOST[ghostNum]);
 		
 	}
 
@@ -366,15 +381,56 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 	public void actionPerformed(ActionEvent event) {
 		
 		// Check if a tick has passed
-		if (event.getSource() == gameTimer) {
-
-			// Increment the elapsed time by the time between ticks
-			elapsedTimeInSEC += (double)PacManGame.TIME_BETWEEN_TICKS / 1000;
-
-			moveGhosts();
-			performMove(pacMan);
+		if (event.getSource() == stopwatch)
+			elapsedTimeInMS++;
+		
+		else if (event.getSource() == gameTimer) {
 			
-			System.out.println("c");
+			tickCount++;
+			System.out.println(tickCount);
+			
+			if (tickCount % 5 == 0)
+				performMove(pacMan);
+			
+			for (Ghost ghost : ghostArray) {
+				
+				if (!ghost.isDead() && !ghost.isVulnerable() && tickCount % 5 == 0) {
+					
+					ghost.movePath(mazeMatrix[pacMan.getRow()][pacMan.getColumn()]);
+					
+					// If pacman is alive, move the ghost
+					if (!pacMan.isDead())
+						performMove(ghost);
+					
+				} else if (!ghost.isDead() && ghost.isVulnerable() && tickCount % 15 == 0){
+					
+					ghost.moveRandomly();
+
+					// If pacman is alive, move the ghost
+					if (!pacMan.isDead())
+						performMove(ghost);
+					
+				} else if (ghost.isDead()){
+					
+					ghost.movePath(mazeMatrix[ghost.getDefaultRow()][ghost.getDefaultColumn()]);
+
+					// If pacman is alive, move the ghost
+					if (!pacMan.isDead())
+						performMove(ghost);
+					
+					if (ghost.getRow() == ghost.getDefaultRow() && ghost.getColumn() == ghost.getDefaultColumn()) {
+						
+						ghost.setVulnerable(false);
+						ghost.setDead(false);
+
+						ghost.setIcon(Icons.GHOST[Integer.parseInt("" + mazeMatrix[ghost.getRow()][ghost.getColumn()].getId())]);
+						mazeMatrix[ghost.getRow()][ghost.getColumn()].setIcon(ghost.getIcon());
+					
+					}
+					
+				}
+				
+			}
 			
 		} else if (event.getSource() == deathTimer) {
 
@@ -393,7 +449,6 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 				}
 				
 				mazeMatrix[pacMan.getRow()][pacMan.getColumn()].setIdIcon(mazeMatrix[pacMan.getRow()][pacMan.getColumn()].getId());
-				System.out.println(mazeMatrix[pacMan.getRow()][pacMan.getColumn()].getIcon());
 				
 				pacMan.setRow(pacMan.getDefaultRow());
 				pacMan.setColumn(pacMan.getDefaultColumn());
@@ -414,6 +469,14 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 			
 			deathTimer.stop();
 			
+		} else if (event.getSource() == vulnerableTimer) {
+			
+			for (int i = 0; i < ghostArray.length; i++) {
+
+				ghostArray[i].setVulnerable(false);
+				ghostArray[i].setIcon(Icons.GHOST[i]);
+				
+			}
 		}
 		
 	}
@@ -434,19 +497,19 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 	}
 	
 	// This method checks if a ghost collided with the player
-	private boolean collided() {
+	private Ghost collided() {
 		
 		// Iterate through the 3 ghosts
 		for (Ghost ghost : ghostArray) {
 			
 			// Check if the player is on the same cell as the ghost
 			if (ghost.getRow() == pacMan.getRow() && ghost.getColumn() == pacMan.getColumn())		
-				return true;
+				return ghost;
 			
 		}
 		
 		// If the player is not collided, return false
-		return false;
+		return null;
 		
 	}
 	

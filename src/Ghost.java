@@ -8,6 +8,8 @@ public class Ghost extends Mover{
 	
 	private double randomInterval;
 	
+	private boolean isVulnerable;
+	
 	public Ghost(Board board, int row, int column) {
 		
 		super(board, row, column);
@@ -88,6 +90,14 @@ public class Ghost extends Mover{
 
 	public void setRandomInterval(double randomInterval) {
 		this.randomInterval = randomInterval;
+	}
+
+	public boolean isVulnerable() {
+		return isVulnerable;
+	}
+
+	public void setVulnerable(boolean isVulnerable) {
+		this.isVulnerable = isVulnerable;
 	}
 
 }

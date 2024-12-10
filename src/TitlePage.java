@@ -16,7 +16,7 @@ public class TitlePage extends JFrame implements ActionListener{
 	public TitlePage() {
 		
 		setSize(PacManGame.SCREEN_X, PacManGame.SCREEN_Y);
-		setIconImage(Icons.CHERRY.getImage());
+		setIconImage(Icons.LOGO.getImage());
 		setLayout(null);
 		
 		setContentPane(new JLabel(Icons.TITLE_BACKGROUND));
