@@ -26,13 +26,26 @@ public class Cell extends JLabel{
 		this.column = column;
 		
 		// Setting the cell's image based on the character
-		setIdIcon();;
+		setIdIcon(id);;
 		setFocusable(false);
 		
 	}
 
-	// Setters and getters
+	// This method sets the icon of this cell
+	public void setIdIcon(char id) {
+		
+		if (id == PacManGame.ID_PLAYER) setIcon(Icons.PACMAN[0]);
+		else if (id == '0') setIcon(Icons.GHOST[0]);
+		else if (id == '1') setIcon(Icons.GHOST[1]);
+		else if (id == '2') setIcon(Icons.GHOST[2]);
+		else if (id == PacManGame.ID_WALL) setIcon(Icons.WALL);
+		else if (id == PacManGame.ID_FOOD) setIcon(Icons.FOOD);
+		else if (id == PacManGame.ID_DOOR) setIcon(Icons.DOOR);
+		else if (id == PacManGame.ID_EMPTY) setIcon(Icons.BLANK);
+		
+	}
 
+	// Setters and getters
 	public int getParentRow() {
 		return parentRow;
 	}
@@ -93,17 +106,5 @@ public class Cell extends JLabel{
 	public void setCostH(int costH) {
 		this.costH = costH;
 	}
-
-	// This method sets the icon of this cell
-	private void setIdIcon() {
-		
-		if (id == PacManGame.ID_PLAYER) setIcon(Icons.PACMAN[0]);
-		else if (id == '0') setIcon(Icons.GHOST[0]);
-		else if (id == '1') setIcon(Icons.GHOST[1]);
-		else if (id == '2') setIcon(Icons.GHOST[2]);
-		else if (id == PacManGame.ID_WALL) setIcon(Icons.WALL);
-		else if (id == PacManGame.ID_FOOD) setIcon(Icons.FOOD);
-		else if (id == PacManGame.ID_DOOR) setIcon(Icons.DOOR);
-		
-	}
+	
 }

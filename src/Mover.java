@@ -1,11 +1,15 @@
 import java.util.*;
-import javax.swing.JLabel;
+
+import javax.swing.*;
 
 /*
  * This class acts as a parent for other entities that move
  */
 public class Mover extends JLabel{
 	
+	private int defaultRow;
+	private int defaultColumn;
+
 	// Declaring row and column number
 	private int row;
 	private int column;
@@ -19,22 +23,25 @@ public class Mover extends JLabel{
 	
 	// Declaring variable for if an entity is dead
 	private boolean isDead;
-	
-	private Cell prevCell;
 
 	// Constructor for when mover is initialized
 	public Mover(Board board, int row, int column) {
 		super();
+		
+		defaultRow = row;
+		defaultColumn = column;
 		this.row = row;
 		this.column = column;
 		this.board = board;
 		
 		mazeMatrix = board.getMazeMatrix();
+		
 	}
 
 	//https://www.youtube.com/watch?v=-L-WgKMFuhE
 	//used pseudocode
 	public void updatePath(Cell targetCell) {
+		
 		for (Cell[] cellArray : mazeMatrix) {
 			for (Cell cell : cellArray) {
 				cell.setCostG(Integer.MAX_VALUE);
@@ -123,6 +130,7 @@ public class Mover extends JLabel{
 		int direction = -1;
 		
 		while (true) {
+			
 			currentRow = current.getRow();
 			currentColumn = current.getColumn();
 			
@@ -263,13 +271,20 @@ public class Mover extends JLabel{
 		this.mazeMatrix = mazeMatrix;
 	}
 	
-	public Cell getPrevCell() {
-		return prevCell;
+	public int getDefaultRow() {
+		return defaultRow;
 	}
 
-	public void setPrevCell(Cell prevCell) {
-		System.out.println(prevCell.getIcon());
-		this.prevCell = prevCell;
+	public void setDefaultRow(int defaultRow) {
+		this.defaultRow = defaultRow;
+	}
+
+	public int getDefaultColumn() {
+		return defaultColumn;
+	}
+
+	public void setDefaultColumn(int defaultColumn) {
+		this.defaultColumn = defaultColumn;
 	}
 	
 }

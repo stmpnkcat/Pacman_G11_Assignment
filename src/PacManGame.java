@@ -38,7 +38,7 @@ public class PacManGame {
 	public static final int COLUMNS = 27;
 	public static final int TIME_BETWEEN_TICKS = 250;
 	public static final int DEATH_DURATION = 2500;
-	public static final int NEIGHBOURING_PENALTY = 100000;
+	public static final int NEIGHBOURING_PENALTY = 0;
 	public static final int DEFAULT_LIVES = 3;
 	
 	// ID settings
