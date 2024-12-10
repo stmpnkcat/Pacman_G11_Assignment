@@ -307,21 +307,21 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 			// Check if the player collided
 			Ghost collidedGhost = collided();
 			
-//			if (collidedGhost != null) {
-//				
-//				if (!collidedGhost.isVulnerable()) {
-//
-//					death();
-//					return;
-//					
-//				} else {
-//					
-//					score += PacManGame.GHOST_SCORE;
-//					ghostDeath(collidedGhost);
-//					
-//				}
-//				
-//			}
+			if (collidedGhost != null) {
+				
+				if (!collidedGhost.isVulnerable()) {
+
+					death();
+					return;
+					
+				} else {
+					
+					score += PacManGame.GHOST_SCORE;
+					ghostDeath(collidedGhost);
+					
+				}
+				
+			}
 			
 			// Check if the player ate all the food
 			if (pelletsEaten == pellets)
@@ -376,6 +376,48 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 		ghost.setIcon(Icons.GHOST[ghostNum]);
 		
 	}
+	
+	private void moveGhosts() {
+		for (Ghost ghost : ghostArray) {
+			
+			if (!ghost.isDead() && !ghost.isVulnerable() && tickCount % 5 == 0) {
+				
+				ghost.movePath(mazeMatrix[pacMan.getRow()][pacMan.getColumn()]);
+				
+				// If pacman is alive, move the ghost
+				if (!pacMan.isDead())
+					performMove(ghost);
+				
+			} else if (!ghost.isDead() && ghost.isVulnerable() && tickCount % 15 == 0){
+				
+				ghost.moveRandomly();
+
+				// If pacman is alive, move the ghost
+				if (!pacMan.isDead())
+					performMove(ghost);
+				
+			} else if (ghost.isDead()){
+				
+				ghost.movePath(mazeMatrix[ghost.getDefaultRow()][ghost.getDefaultColumn()]);
+
+				// If pacman is alive, move the ghost
+				if (!pacMan.isDead())
+					performMove(ghost);
+				
+				if (ghost.getRow() == ghost.getDefaultRow() && ghost.getColumn() == ghost.getDefaultColumn()) {
+					
+					ghost.setVulnerable(false);
+					ghost.setDead(false);
+
+					ghost.setIcon(Icons.GHOST[Integer.parseInt("" + mazeMatrix[ghost.getRow()][ghost.getColumn()].getId())]);
+					mazeMatrix[ghost.getRow()][ghost.getColumn()].setIcon(ghost.getIcon());
+				
+				}
+				
+			}
+			
+		}
+	}
 
 	// This method calls on other methods when the game is running
 	public void actionPerformed(ActionEvent event) {
@@ -392,45 +434,7 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 			if (tickCount % 5 == 0)
 				performMove(pacMan);
 			
-			for (Ghost ghost : ghostArray) {
-				
-				if (!ghost.isDead() && !ghost.isVulnerable() && tickCount % 5 == 0) {
-					
-					ghost.movePath(mazeMatrix[pacMan.getRow()][pacMan.getColumn()]);
-					
-					// If pacman is alive, move the ghost
-					if (!pacMan.isDead())
-						performMove(ghost);
-					
-				} else if (!ghost.isDead() && ghost.isVulnerable() && tickCount % 15 == 0){
-					
-					ghost.moveRandomly();
-
-					// If pacman is alive, move the ghost
-					if (!pacMan.isDead())
-						performMove(ghost);
-					
-				} else if (ghost.isDead()){
-					
-					ghost.movePath(mazeMatrix[ghost.getDefaultRow()][ghost.getDefaultColumn()]);
-
-					// If pacman is alive, move the ghost
-					if (!pacMan.isDead())
-						performMove(ghost);
-					
-					if (ghost.getRow() == ghost.getDefaultRow() && ghost.getColumn() == ghost.getDefaultColumn()) {
-						
-						ghost.setVulnerable(false);
-						ghost.setDead(false);
-
-						ghost.setIcon(Icons.GHOST[Integer.parseInt("" + mazeMatrix[ghost.getRow()][ghost.getColumn()].getId())]);
-						mazeMatrix[ghost.getRow()][ghost.getColumn()].setIcon(ghost.getIcon());
-					
-					}
-					
-				}
-				
-			}
+			moveGhosts();
 			
 		} else if (event.getSource() == deathTimer) {
 
@@ -497,7 +501,7 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 	}
 	
 	// This method checks if a ghost collided with the player
-	private Ghost collided() {
+	public Ghost collided() {
 		
 		// Iterate through the 3 ghosts
 		for (Ghost ghost : ghostArray) {
