@@ -1,6 +1,9 @@
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+
 import javax.swing.*;
 
 public class TitlePage extends JFrame implements ActionListener{
@@ -14,45 +17,79 @@ public class TitlePage extends JFrame implements ActionListener{
 	JButton exitButton = new JButton("EXIT");
 	
 	public TitlePage() {
-		
-		setTitle("PacMan");
-		setSize(PacManGame.SCREEN_X, PacManGame.SCREEN_Y);
-		setIconImage(Icons.LOGO.getImage());
-	    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	    
+	    formatFrame(this);
 		setLayout(null);
+	    
+	    setContentPane(new JLabel(Icons.TITLE_BACKGROUND));
+	    titleLabel.setBounds(0, 50, 600, 140);
+	    add(titleLabel);
+	    
+	    JPanel playButtonPanel = formatButton(this, playButton);
+	    playButtonPanel.setBounds(150, 400, 350, 50);
+	    add(playButtonPanel);
+	    
+	    JPanel leaderboardButtonPanel = formatButton(this, leaderboardButton);
+	    leaderboardButtonPanel.setBounds(150, 450, 350, 50);
+	    add(leaderboardButtonPanel);
+	    
+	    JPanel exitButtonPanel = formatButton(this, exitButton);
+	    exitButtonPanel.setBounds(150, 500, 350, 50);
+	    add(exitButtonPanel);
+	    
+	    setVisible(true);
+	    
+	}
+	
+	public static void formatFrame(JFrame frame) {
 		
-		setContentPane(new JLabel(Icons.TITLE_BACKGROUND));
-		titleLabel.setBounds(0, 50, 600, 140);
-		add(titleLabel);
-		
-		formatButton(playButton);
-		
-		playButton.setBounds(150, 400, 300, 50);
-		add(playButton);
-		
-		formatButton(leaderboardButton);
-		
-		leaderboardButton.setBounds(150, 450, 300, 50);
-		add(leaderboardButton);
-		
-		formatButton(exitButton);
-		
-		exitButton.setBounds(150, 500, 300, 50);
-		add(exitButton);
-		
-		setVisible(true);
+		frame.setTitle("PacMan");
+		frame.setSize(PacManGame.SCREEN_X, PacManGame.SCREEN_Y);
+		frame.getContentPane().setBackground(Color.BLACK);
+		frame.setIconImage(Icons.LOGO.getImage());
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setResizable(false);
 		
 	}
 	
-	private void formatButton(JButton button) {
-		
-		button.setFont(Fonts.font_big);
-		button.setForeground(Color.WHITE);
-		button.addActionListener(this);
-		button.setOpaque(false);
-		button.setContentAreaFilled(false);
-		button.setBorderPainted(false);
-		
+	public static JPanel formatButton(JFrame frame, JButton button) {
+
+	    JLabel arrowLabel = new JLabel(">");
+	    arrowLabel.setFont(Fonts.font_big);
+	    arrowLabel.setForeground(Color.WHITE);
+	    arrowLabel.setVisible(false);
+	    
+	    FocusListener focusListener = new FocusListener() {
+	        
+	        @Override
+	        public void focusGained(FocusEvent e) {
+	            arrowLabel.setVisible(true);
+	        }
+
+	        @Override
+	        public void focusLost(FocusEvent e) {
+	            arrowLabel.setVisible(false);
+	        }
+	        
+	    };
+	    
+	    button.setFont(Fonts.font_big);
+	    button.setForeground(Color.WHITE);
+	    button.setOpaque(false);
+	    button.setContentAreaFilled(false);
+	    button.setBorderPainted(false);
+	    button.addActionListener((ActionListener) frame);
+	    button.addFocusListener(focusListener);
+	    
+	    JPanel buttonPanel = new JPanel();
+	    buttonPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+	    buttonPanel.setOpaque(false);
+
+	    buttonPanel.add(arrowLabel);
+	    buttonPanel.add(button);
+	    
+	    return buttonPanel;
+	    
 	}
 
 	@Override

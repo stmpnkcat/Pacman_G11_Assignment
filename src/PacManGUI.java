@@ -29,11 +29,7 @@ public class PacManGUI extends JFrame {
 	public PacManGUI() {
 		
 		// Set size and title of the frame
-		setSize(PacManGame.SCREEN_X, PacManGame.SCREEN_Y);
-		setTitle("PacMan");
-		getContentPane().setBackground(Color.BLACK);
-		setIconImage(Icons.LOGO.getImage());
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Close the frame when the program stops
+		TitlePage.formatFrame(this);
 		setLayout(new BorderLayout());
 		
 		// Add the board to the main board GUI

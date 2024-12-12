@@ -28,12 +28,8 @@ public class LeaderboardPage extends JFrame implements ActionListener{
 	private JButton backButton = new JButton("BACK");
 	
 	public LeaderboardPage () {
-		
-		setTitle("PacMan");
-		setSize(PacManGame.SCREEN_X, PacManGame.SCREEN_Y);
-		setIconImage(Icons.LOGO.getImage());
-		getContentPane().setBackground(Color.BLACK);
-	    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+		TitlePage.formatFrame(this);
 		setLayout(new BorderLayout());
 		
 		titleLabel.setFont(Fonts.font_big);
@@ -44,19 +40,13 @@ public class LeaderboardPage extends JFrame implements ActionListener{
 		add(titleLabel, BorderLayout.NORTH);
 		
 		leaderboardPanel = createLeaderboardPanel();
-		leaderboardPanel.setBorder(BorderFactory.createEmptyBorder(50, 50, 50, 50));
 		
 		add(leaderboardPanel, BorderLayout.CENTER);
 		
-		backButton.setFont(Fonts.font_big);
-		backButton.setForeground(Color.WHITE);
-		backButton.addActionListener(this);
-		backButton.setOpaque(false);
-		backButton.setContentAreaFilled(false);
-		backButton.setBorderPainted(false);
-		backButton.setBorder(BorderFactory.createEmptyBorder(50, 50, 50, 50));
+		JPanel backButtonPanel = TitlePage.formatButton(this, backButton);
+		backButtonPanel.setBorder(BorderFactory.createEmptyBorder(50, 50, 50, 50));
 		
-		add(backButton, BorderLayout.SOUTH);
+		add(backButtonPanel, BorderLayout.SOUTH);
 		
 		setVisible(true);
 		
