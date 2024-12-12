@@ -10,6 +10,8 @@ public class Ghost extends Mover{
 	
 	private boolean isVulnerable;
 	
+	private int vulnerableTime = 0;
+	
 	public Ghost(Board board, int row, int column) {
 		
 		super(board, row, column);
@@ -98,6 +100,14 @@ public class Ghost extends Mover{
 
 	public void setVulnerable(boolean isVulnerable) {
 		this.isVulnerable = isVulnerable;
+	}
+
+	public int getVulnerableTime() {
+		return vulnerableTime;
+	}
+
+	public void setVulnerableTime(int vulnerableTime) {
+		this.vulnerableTime = vulnerableTime;
 	}
 
 }

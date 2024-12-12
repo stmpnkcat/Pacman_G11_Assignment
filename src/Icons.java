@@ -15,6 +15,7 @@ public class Icons {
 	// Creating images for each of the tiles
 	public static final ImageIcon WALL = new ImageIcon("images/Wall.png");
 	public static final ImageIcon FOOD = new ImageIcon("images/Food.png");
+	public static final ImageIcon PUSHER = new ImageIcon("images/Black.png");
 	public static final ImageIcon BIG_FOOD = new ImageIcon("images/Big_Food.png");
 	public static final ImageIcon BLANK = new ImageIcon("images/Black.png");
 	public static final ImageIcon DOOR = new ImageIcon("images/Black.png");

@@ -30,7 +30,7 @@ public class PacManGUI extends JFrame {
 		
 		// Set size and title of the frame
 		setSize(PacManGame.SCREEN_X, PacManGame.SCREEN_Y);
-		setTitle("Daniel's PacMan Game");
+		setTitle("PacMan");
 		getContentPane().setBackground(Color.BLACK);
 		setIconImage(Icons.LOGO.getImage());
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Close the frame when the program stops
@@ -47,13 +47,13 @@ public class PacManGUI extends JFrame {
 		scorePanel.setBackground(Color.BLACK);
 		
 		scoreTextLabel.setForeground(Color.WHITE);
-		scoreTextLabel.setFont(Fonts.score_font);
+		scoreTextLabel.setFont(Fonts.font_small);
 		
 		scorePanel.add(scoreTextLabel);
 
 		updateScore(0);
 		scoreLabel.setForeground(Color.WHITE);
-		scoreLabel.setFont(Fonts.score_font);
+		scoreLabel.setFont(Fonts.font_small);
 		scorePanel.add(scoreLabel);
 		
 		headerPanel.add(scorePanel, BorderLayout.WEST);
@@ -63,13 +63,13 @@ public class PacManGUI extends JFrame {
 		livesPanel.setBackground(Color.BLACK);
 		
 		livesTextLabel.setForeground(Color.WHITE);
-		livesTextLabel.setFont(Fonts.score_font);
+		livesTextLabel.setFont(Fonts.font_small);
 		
 		livesPanel.add(livesTextLabel);
 		
 		updateLives(PacManGame.DEFAULT_LIVES);
 		livesLabel.setForeground(Color.WHITE);
-		livesLabel.setFont(Fonts.score_font);
+		livesLabel.setFont(Fonts.font_small);
 		
 		livesPanel.add(livesLabel);
 		

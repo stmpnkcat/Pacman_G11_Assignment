@@ -4,23 +4,24 @@ import java.awt.event.ActionListener;
 import javax.swing.*;
 
 public class TitlePage extends JFrame implements ActionListener{
+
+	JLabel titleLabel = new JLabel(Icons.TITLE);
 	
-	private JLabel titleLabel = new JLabel(Icons.TITLE);
+	JButton playButton = new JButton("PLAY");
 	
-	private JButton playButton = new JButton("PLAY");
+	JButton leaderboardButton = new JButton("LEADERBOARD");
 	
-	private JButton leaderboardButton = new JButton("LEADERBOARD");
-	
-	private JButton exitButton = new JButton("EXIT");
+	JButton exitButton = new JButton("EXIT");
 	
 	public TitlePage() {
 		
+		setTitle("PacMan");
 		setSize(PacManGame.SCREEN_X, PacManGame.SCREEN_Y);
 		setIconImage(Icons.LOGO.getImage());
+	    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setLayout(null);
 		
 		setContentPane(new JLabel(Icons.TITLE_BACKGROUND));
-		
 		titleLabel.setBounds(0, 50, 600, 140);
 		add(titleLabel);
 		
@@ -45,7 +46,7 @@ public class TitlePage extends JFrame implements ActionListener{
 	
 	private void formatButton(JButton button) {
 		
-		button.setFont(Fonts.play_font);
+		button.setFont(Fonts.font_big);
 		button.setForeground(Color.WHITE);
 		button.addActionListener(this);
 		button.setOpaque(false);
@@ -64,7 +65,8 @@ public class TitlePage extends JFrame implements ActionListener{
 			
 		} else if (e.getSource() == leaderboardButton) {
 			
-			
+			dispose();
+			new LeaderboardPage();
 			
 		} else if (e.getSource() == exitButton) {
 			

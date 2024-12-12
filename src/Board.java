@@ -1,6 +1,10 @@
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+
 import javax.swing.*;
 import java.util.Scanner;
 
@@ -65,69 +69,69 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 	private void loadBoard(String filePath) {
 		
 		// Declaring the row variable to keep track of the row number while traversing the file
-		int row = 0;
-		
-		// Declaring the scanner
-		Scanner inputFile;
-		
-		// Trying to get the image, if it fails, send error message
-		try {
-			
-			// Setting the scanner to read the file location given
-			inputFile = new Scanner(new File(filePath));
-			
-			// Iterate through the rows of the file
-			while (inputFile.hasNext()) {
+				int row = 0;
 				
-				// Create a char array of the current row
-				char[] lineArray = inputFile.nextLine().toCharArray();
+				// Declaring the scanner
+				Scanner inputFile;
 				
-				// Iterate through every character in the current row
-				for (int column = 0; column < lineArray.length; column++) {
+				// Trying to get the image, if it fails, send error message
+				try {
 					
-					// Create a new cell in the maze array given the character in the current position
-					mazeMatrix[row][column] = new Cell(lineArray[column], row, column);
+					// Setting the scanner to read the file location given
+					inputFile = new Scanner(new File(filePath));
 					
-					// Track number of pellets and count it
-					if (lineArray[column] == PacManGame.ID_FOOD) {
-						pellets++;
-					}
-					
-					// Find PacMan in the file and create him
-					else if (lineArray[column] == PacManGame.ID_PLAYER) {
-						pacMan = new Mover(this, row, column);
-						pacMan.setIcon(Icons.PACMAN[0]);
-						pacMan.setDirection(0);
-					}
-					
-					// Initialize the map
-					else if (lineArray[column] == '0' || lineArray[column] == '1' || lineArray[column] == '2') {
+					// Iterate through the rows of the file
+					while (inputFile.hasNext()) {
 						
-						int gNum = Character.getNumericValue(mazeMatrix[row][column].getId());
-						ghostArray[gNum] = new Ghost(this, row, column);
-						ghostArray[gNum].setIcon(Icons.GHOST[gNum]);
+						// Create a char array of the current row
+						char[] lineArray = inputFile.nextLine().toCharArray();
+						
+						// Iterate through every character in the current row
+						for (int column = 0; column < lineArray.length; column++) {
+							
+							// Create a new cell in the maze array given the character in the current position
+							mazeMatrix[row][column] = new Cell(lineArray[column], row, column);
+							
+							// Track number of pellets and count it
+							if (lineArray[column] == PacManGame.ID_FOOD) {
+								pellets++;
+							}
+							
+							// Find PacMan in the file and create him
+							else if (lineArray[column] == PacManGame.ID_PLAYER) {
+								pacMan = new Mover(this, row, column);
+								pacMan.setIcon(Icons.PACMAN[0]);
+								pacMan.setDirection(0);
+							}
+							
+							// Initialize the map
+							else if (lineArray[column] == '0' || lineArray[column] == '1' || lineArray[column] == '2') {
+								
+								int gNum = Character.getNumericValue(mazeMatrix[row][column].getId());
+								ghostArray[gNum] = new Ghost(this, row, column);
+								ghostArray[gNum].setIcon(Icons.GHOST[gNum]);
+								
+							}
+							
+							// Add the current cell to the board panel
+							add(mazeMatrix[row][column]);
+							
+						}
+						
+						// Increment the row number, as if it were a for-loop
+						row++;
 						
 					}
 					
-					// Add the current cell to the board panel
-					add(mazeMatrix[row][column]);
+					// Close the input file
+					inputFile.close();
+					
+				// If the file cannot be found, return an error message.
+				} catch (FileNotFoundException error) {
+					
+					System.out.println("File not found");
 					
 				}
-				
-				// Increment the row number, as if it were a for-loop
-				row++;
-				
-			}
-			
-			// Close the input file
-			inputFile.close();
-			
-		// If the file cannot be found, return an error message.
-		} catch (FileNotFoundException error) {
-			
-			System.out.println("File not found");
-			
-		}
 	}
 
 	// This method triggers when a key is pressed
@@ -262,7 +266,7 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 					
 					// Increment the score and mark the cell as empty
 					pelletsEaten++;
-					score += PacManGame.PELLET_SCORE;
+					score += PacManGame.SCORE_PELLET;
 					
 					frame.updateScore(score);
 					
@@ -272,7 +276,7 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 					
 					nextCell.setId(PacManGame.ID_EMPTY);
 					
-					score += PacManGame.BIG_SCORE;
+					score += PacManGame.SCORE_BIG;
 					
 					frame.updateScore(score);
 					
@@ -286,8 +290,13 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 						
 					}
 					
-					if (vulnerableTimer.isRunning()) 
+					if (vulnerableTimer.isRunning()) {
+
 						vulnerableTimer.restart();
+						for (Ghost ghost : ghostArray)
+							ghost.setVulnerableTime(0);
+						
+					}
 					else 
 						vulnerableTimer.start();
 					
@@ -316,7 +325,7 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 					
 				} else {
 					
-					score += PacManGame.GHOST_SCORE;
+					score += PacManGame.SCORE_GHOST;
 					ghostDeath(collidedGhost);
 					
 				}
@@ -324,8 +333,11 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 			}
 			
 			// Check if the player ate all the food
-			if (pelletsEaten == pellets)
-				gameTimer.stop();
+			if (pelletsEaten == pellets) {
+				
+				endGame();
+				
+			}
 			
 		}
 		
@@ -378,6 +390,7 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 	}
 	
 	private void moveGhosts() {
+		
 		for (Ghost ghost : ghostArray) {
 			
 			if (!ghost.isDead() && !ghost.isVulnerable() && tickCount % 5 == 0) {
@@ -388,15 +401,38 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 				if (!pacMan.isDead())
 					performMove(ghost);
 				
-			} else if (!ghost.isDead() && ghost.isVulnerable() && tickCount % 15 == 0){
+			} else if (!ghost.isDead() && ghost.isVulnerable()){
 				
-				ghost.moveRandomly();
+				ghost.setVulnerableTime(ghost.getVulnerableTime() + PacManGame.TIME_BETWEEN_TICKS);
+				
+				if (ghost.getVulnerableTime() >= PacManGame.TIME_BEFORE_WARNING && tickCount % 5 == 0) {
+					
+					int ghostNum = -1;
+					
+					for (int i = 0; i < ghostArray.length; i++) {
+						
+						if (ghostArray[i] == ghost)
+							ghostNum = i;
+						
+					}
+					
+					ghost.setIcon(ghost.getIcon() == Icons.GHOST[3] ? Icons.GHOST[ghostNum] : Icons.GHOST[3]);
+					mazeMatrix[ghost.getRow()][ghost.getColumn()].setIcon(ghost.getIcon());
+				}
+				
+				if (tickCount % 15 == 0) {
 
-				// If pacman is alive, move the ghost
-				if (!pacMan.isDead())
-					performMove(ghost);
+					ghost.moveRandomly();
+
+					// If pacman is alive, move the ghost
+					if (!pacMan.isDead())
+						performMove(ghost);
+					
+				}
 				
 			} else if (ghost.isDead()){
+				
+				ghost.setVulnerableTime(0);
 				
 				ghost.movePath(mazeMatrix[ghost.getDefaultRow()][ghost.getDefaultColumn()]);
 
@@ -442,11 +478,15 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 
 				for (int i = 0; i < ghostArray.length; i++) {
 					
+					System.out.println(mazeMatrix[ghostArray[i].getRow()][ghostArray[i].getColumn()]);
+					
 					mazeMatrix[ghostArray[i].getRow()][ghostArray[i].getColumn()].setIdIcon(mazeMatrix[ghostArray[i].getRow()][ghostArray[i].getColumn()].getId());
+					
+					System.out.println(mazeMatrix[ghostArray[i].getRow()][ghostArray[i].getColumn()].getIcon());
 					
 					ghostArray[i].setRow(ghostArray[i].getDefaultRow());
 					ghostArray[i].setColumn(ghostArray[i].getDefaultColumn());
-					ghostArray[i].setIcon(Icons.GHOST[i]);
+					ghostArray[i].setIcon(Icons.GHOST[i]); 
 					
 					mazeMatrix[ghostArray[i].getRow()][ghostArray[i].getColumn()].setIcon(ghostArray[i].getIcon());
 					
@@ -465,9 +505,7 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 				
 			} else {
 				
-				frame.dispose();
-				
-				new TitlePage();
+				endGame();
 				
 			}
 			
@@ -477,6 +515,7 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 			
 			for (int i = 0; i < ghostArray.length; i++) {
 
+				ghostArray[i].setVulnerableTime(0);
 				ghostArray[i].setVulnerable(false);
 				ghostArray[i].setIcon(Icons.GHOST[i]);
 				
@@ -485,6 +524,126 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 		
 	}
 	
+	private void endGame() {
+		
+		gameTimer.stop();
+		
+		frame.dispose();
+		
+		createEndScreen();
+		
+//		frame.dispose();
+//		
+//		createEndScreen();
+//
+//		try (Writer writer = new BufferedWriter(new OutputStreamWriter(
+//	              new FileOutputStream("leaderboards/medium_difficulty.txt"), "utf-8"))) {
+//			
+//			writer.write(score);
+//			
+//		} catch (IOException e) {
+//			
+//			System.err.println(e);
+//			e.printStackTrace();
+//			
+//		}
+		
+	}
+	
+	private void createEndScreen() {
+		
+		JFrame endFrame = new JFrame();
+
+		endFrame.setTitle("PacMan");
+		endFrame.setSize(PacManGame.SCREEN_X, PacManGame.SCREEN_Y);
+		endFrame.setIconImage(Icons.LOGO.getImage());
+		endFrame.getContentPane().setBackground(Color.BLACK);
+	    endFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	    endFrame.setLayout(null);
+	    
+		JLabel scoreLabel = new JLabel("FINAL SCORE             " + score, SwingConstants.CENTER);
+		scoreLabel.setFont(Fonts.font_big);
+		scoreLabel.setBackground(Color.BLACK);
+		scoreLabel.setForeground(Color.WHITE);
+
+		scoreLabel.setBounds(100, 50, 400, 50);
+		endFrame.add(scoreLabel);
+
+		JTextField nameTextField = new JTextField();
+		
+		if (LeaderboardPage.isOnLeaderboard(score)) {
+			
+			JLabel promptLabel = new JLabel("ENTER NAME ", SwingConstants.CENTER);
+			promptLabel.setFont(Fonts.font_small);
+			promptLabel.setForeground(Color.WHITE);
+			
+			promptLabel.setBounds(100, 120, 400, 50);
+			endFrame.add(promptLabel);
+			nameTextField.setFont(Fonts.font_small);
+			nameTextField.setBackground(Color.BLACK);
+			nameTextField.setForeground(Color.WHITE);
+			nameTextField.setBorder(BorderFactory.createLineBorder(Color.WHITE));
+			
+			nameTextField.setBounds(200, 160, 200, 50);
+			endFrame.add(nameTextField);
+			
+			nameTextField.grabFocus();
+			
+			JPanel leaderboardPanel = LeaderboardPage.createLeaderboardPanel();
+			
+			leaderboardPanel.setBounds(100, 250, 500, 250);
+			endFrame.add(leaderboardPanel);
+			
+		}
+		
+		JButton confirmButton = new JButton("CONFIRM");
+		confirmButton.setFont(Fonts.font_big);
+		confirmButton.setForeground(Color.WHITE);;
+		confirmButton.setOpaque(false);
+		confirmButton.setContentAreaFilled(false);
+		confirmButton.setBorderPainted(false);
+
+		confirmButton.setBounds(100, 520, 300, 50);
+		endFrame.add(confirmButton);
+		
+		//https://stackoverflow.com/questions/44790907/how-to-create-a-lambda-like-pattern-in-actionlistener
+		confirmButton.addActionListener(e -> {
+			
+			
+			if (LeaderboardPage.isOnLeaderboard(score)) {
+				
+				String name = nameTextField.getText().toUpperCase().replace(' ', '_');
+				
+				if (!name.equals("")) {
+					
+					try {
+						
+						Files.write(Paths.get("leaderboards/maze_1.txt"), (name + " " + score + "\n").getBytes(), StandardOpenOption.APPEND);
+						
+					} catch (IOException e1) {
+
+						e1.printStackTrace();
+						
+					}
+					
+					endFrame.dispose();
+					new LeaderboardPage();
+					
+				}
+				
+			} else {
+
+				endFrame.dispose();
+				new TitlePage();
+				
+			}
+			
+		});
+		
+		endFrame.setVisible(true);
+		
+	}
+
 	public boolean isOverlapping(Mover self, Cell nextCell) {
 		
 		for (Mover ghost : ghostArray) {
