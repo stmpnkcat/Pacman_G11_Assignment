@@ -97,16 +97,21 @@
  * - Appending to an existing file: https://stackoverflow.com/questions/1625234/how-to-append-text-to-an-existing-file-in-java
  * - Sorting HashMap: https://www.geeksforgeeks.org/sorting-a-hashmap-according-to-values/
  * 
+ * - arcade_classic: https://www.dafont.com/arcade-classic-2.font
+ * - logo: https://www.cleanpng.com/png-ms-pac-man-pac-man-vs-pac-man-plus-arcade-game-1667037/9.html
+ * - background: https://www.mobygames.com/game/138/pac-man/screenshots/android/470252/
+ * 
  * - Base Game: Nicholas Fernandes
  * 
  */
 
 /*
  * This is the application lass that runs the game
+ * It also stores many constants the other classes uses
  */
 public class PacManGame {
 
-	// Game settings
+	// Game constants
 	public static final int SCREEN_X = 600;
 	public static final int SCREEN_Y = 650;
 	public static final int ROWS = 25;
@@ -119,7 +124,7 @@ public class PacManGame {
 	public static final double TIME_BEFORE_WARNING = (double) VULNERABLE_DURATION * 0.5;
 	public static final int CHERRY_SPAWN_TIME = 10000;
 	
-	// ID settings
+	// ID constants
 	public static final char ID_PLAYER = 'P';
 	public static final char ID_GHOST = 'G';
 	public static final char ID_PUSHER = '^';
@@ -130,18 +135,19 @@ public class PacManGame {
 	public static final char ID_DOOR = 'D';
 	public static final char ID_EMPTY = 'E';
 	
-	// Scoring settings
+	// Scoring constants
 	public static final int SCORE_PELLET = 10;
 	public static final int SCORE_BIG = 50;
 	public static final int SCORE_CHERRY = 200;
 	public static final int SCORE_GHOST = 100;
 	
-	// Leaderboard settings
+	// Leaderboard constant
 	public static final int LEADERBOARD_MAX_ROWS = 5;
 	
 	// This method runs when the program is run
 	public static void main (String[] args) {
 		
+		// Creaing the fonts
 		Fonts.createFonts();
 		
 		// This calls the constructor of PacManGUI, initializing the GUI screen

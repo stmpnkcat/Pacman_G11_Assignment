@@ -2,6 +2,7 @@ import javax.swing.JLabel;
 
 /*
  * This class creates a blueprint cell to be created by other classes
+ * It has costs and parent variables to be used for pathfinding
  */
 public class Cell extends JLabel{
 	
@@ -20,6 +21,7 @@ public class Cell extends JLabel{
 	// This method is a constructor which runs when a new cell is created
 	public Cell(char id, int row, int column) {
 
+		// Setting the fields
 		super();
 		this.id = id;
 		this.row = row;
@@ -34,6 +36,7 @@ public class Cell extends JLabel{
 	// This method sets the icon of this cell
 	public void setIdIcon(char id) {
 		
+		// Setting the icon based on the id
 		if (id == PacManGame.ID_PLAYER) setIcon(Icons.PACMAN[0]);
 		else if (id == '0') setIcon(Icons.GHOST[0]);
 		else if (id == '1') setIcon(Icons.GHOST[1]);

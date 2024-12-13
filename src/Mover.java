@@ -7,6 +7,7 @@ import javax.swing.*;
  */
 public class Mover extends JLabel{
 	
+	// Setting the default row and column
 	private int defaultRow;
 	private int defaultColumn;
 
@@ -14,6 +15,7 @@ public class Mover extends JLabel{
 	private int row;
 	private int column;
 	
+	// Declare the board and maze matrix
 	private Board board;
 	private Cell[][] mazeMatrix;
 	
@@ -28,84 +30,104 @@ public class Mover extends JLabel{
 	public Mover(Board board, int row, int column) {
 		super();
 		
+		// Setting the fields
 		defaultRow = row;
 		defaultColumn = column;
 		this.row = row;
 		this.column = column;
 		this.board = board;
 		
+		// Setthe maze matrix
 		mazeMatrix = board.getMazeMatrix();
 		
 	}
 
-	//https://www.youtube.com/watch?v=-L-WgKMFuhE
-	//used pseudocode
+	// https://www.youtube.com/watch?v=-L-WgKMFuhE
+	// A* Algorithm
+	// This algorithm assigns 3 costs, H cost, G cost, and total cost
+	// Moving across one cell has a cost of one
+	// Crossing a cell with a ghost will increase the cost by the Neighbouring Cost Penalty,
+	// this discourages ghosts moving in a line and encourages coordinated attacks on the player
+	// H cost is calculated using Manhattan distance to the target cell (heuristic)
+	// G cost is the sum of G costs to get to the selected cell
 	public void updatePath(Cell targetCell) {
 		
-		for (Cell[] cellArray : mazeMatrix) {
-			for (Cell cell : cellArray) {
-				cell.setCostG(Integer.MAX_VALUE);
-				cell.setCostH(Integer.MAX_VALUE);
-				cell.setCost(Integer.MAX_VALUE);
-			}
-		}
-		
-		
+		// Creating an arraylist of open cells, which are the next ones to be searched
 		ArrayList<Cell> open = new ArrayList<>();
+		
+		// Creating an arraylist of closed cells, which have already been searched
 		ArrayList<Cell> closed = new ArrayList<>();
 		
+		// Get the current cell the mover is on
 		Cell selfCell = mazeMatrix[getRow()][getColumn()];
 
-		selfCell.setCostG(0);
-		selfCell.setCostH(Math.abs(selfCell.getRow() - targetCell.getRow()) + 
-						Math.abs(selfCell.getColumn() - targetCell.getColumn()));
-		selfCell.setCost(selfCell.getCostH());
+		// Set the base costs
+		selfCell.setCostG(0); // Set the G cost, which is zero because it is 
+		selfCell.setCostH(Math.abs(selfCell.getRow() - targetCell.getRow()) +
+						Math.abs(selfCell.getColumn() - targetCell.getColumn())); // Set the H cost using Manhattan distance       
+		selfCell.setCost(selfCell.getCostH()); // Set the cost to the cost H
 		
+		// Add the self cell to the open list
 		open.add(selfCell);
 		
+		// While there are more cells to search
 		while (!open.isEmpty()) {
 			
+			// Sort the two arrays
 			open.sort(Comparator.comparing(Cell::getCost));
 			closed.sort(Comparator.comparing(Cell::getCost));
 			
+			// Get the current cell
 			Cell current = open.get(0);
 
+			// Remove the current cell from the open list
 			open.remove(current);
 			
+			// Add the current cell to the closed list
 			closed.add(current);
 			
+			// Check if the open cell is the target cell
 			if (current == targetCell) break;
 			
+			// Initialize a list for the neighbours
 			ArrayList<Cell> neighbours = new ArrayList<>();
 			
+			// Check if the neighbours are valid, then add them
 			if (current.getRow() - 1 >= 0) neighbours.add(mazeMatrix[current.getRow() - 1][current.getColumn()]);
 			if (current.getColumn() - 1 >= 0) neighbours.add(mazeMatrix[current.getRow()][current.getColumn() - 1]);
 			if (current.getRow() + 1 < PacManGame.ROWS) neighbours.add(mazeMatrix[current.getRow() + 1][current.getColumn()]);
 			if (current.getColumn() + 1 < PacManGame.COLUMNS) neighbours.add(mazeMatrix[current.getRow()][current.getColumn() + 1]);
 			
+			// Check the 4 neighbours
 			for (Cell neighbour : neighbours) {
+				
+				// If the neighbour is a wall or has already been checked, go to the next neighbour
 				if (neighbour.getId() == PacManGame.ID_WALL || closed.contains(neighbour))
 					continue;
 				
+				// Change the costs
 				int neighbourCostH = Math.abs(neighbour.getRow() - targetCell.getRow()) + 
 						Math.abs(neighbour.getColumn() - targetCell.getColumn());
-				int neighbourCostG = current.getCostG() + 1;
-				int neighbourCost = neighbourCostH + neighbourCostG;
+				int neighbourCostG = current.getCostG() + 1; // Add one to the previous path cost
+				int neighbourCost = neighbourCostH + neighbourCostG; // Total cost
 				
+				// Check if the neighbours have less cost than the current cell or it has not been searched yet
 				if (current.getCost() < neighbourCost || !open.contains(neighbour)) {
 					
+					// If there is a ghost in the cell, add a penalty for going that way
 					if (board.getIdOfMover(neighbour.getRow(), neighbour.getColumn()) == PacManGame.ID_GHOST) {
 						neighbourCost += PacManGame.NEIGHBOURING_PENALTY;
 					}
 					
+					// Set the costs
 					neighbour.setCostH(neighbourCostH);
 					neighbour.setCostG(neighbourCostG);
 					neighbour.setCost(neighbourCost);
-					neighbour.setParent(current.getRow(), current.getColumn());
+					neighbour.setParent(current.getRow(), current.getColumn()); // Set the parent of the neighbour
 					
-					if (!open.contains(neighbour)){
+					// If neighbour hasn't been checked yet, add it
+					if (!open.contains(neighbour))
 						open.add(neighbour);
-					}
 					
 				}
 				
@@ -115,30 +137,41 @@ public class Mover extends JLabel{
 		
 	}
 	
+	// Method to get the direction sequence
 	public Stack<Integer> calcDirectionSequence (Cell target) {
 
+		// Initialize th direction stack
 		Stack<Integer> directionStack = new Stack<>();
 		
+		// Get the current row an column
 		int currentRow = target.getRow();
 		int currentColumn = target.getColumn();
 		
+		// Initialize the delta row and column
 		int dRow = 0;
 		int dColumn = 0;
 		
+		// Declare the current cell
 		Cell current = mazeMatrix[currentRow][currentColumn];
 		
+		// Initialize the direction
 		int direction = -1;
 		
+		// Keep looping
 		while (true) {
 			
+			// Set the row and column
 			currentRow = current.getRow();
 			currentColumn = current.getColumn();
 			
+			// Get the current cell
 			current = mazeMatrix[current.getParentRow()][current.getParentColumn()];
 			
+			// If the target cell is equal to the current cell, return the sequence
 			if (currentRow == getRow() && currentColumn == getColumn())
 				return directionStack;
 			
+			// Get the delta values
 			dRow = currentRow - current.getRow();
 			dColumn = currentColumn - current.getColumn();
 			
@@ -152,6 +185,7 @@ public class Mover extends JLabel{
 			else
 				direction = 3;
 			
+			// Add the direction to the direction stack
 			directionStack.add(direction);
 			
 		}
