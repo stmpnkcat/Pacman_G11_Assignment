@@ -29,7 +29,7 @@ public class LeaderboardPage extends JFrame implements ActionListener{
 	
 	public LeaderboardPage () {
 
-		TitlePage.formatFrame(this);
+		Utilities.formatFrame(this);
 		setLayout(new BorderLayout());
 		
 		titleLabel.setFont(Fonts.font_big);
@@ -43,7 +43,7 @@ public class LeaderboardPage extends JFrame implements ActionListener{
 		
 		add(leaderboardPanel, BorderLayout.CENTER);
 		
-		JPanel backButtonPanel = TitlePage.formatButton(this, backButton);
+		JPanel backButtonPanel = Utilities.formatButton(this, backButton);
 		backButtonPanel.setBorder(BorderFactory.createEmptyBorder(50, 50, 50, 50));
 		
 		add(backButtonPanel, BorderLayout.SOUTH);
@@ -103,7 +103,7 @@ public class LeaderboardPage extends JFrame implements ActionListener{
 		
 		leaderboard.put(" ", value);
 		
-		if (sortByValues(leaderboard).containsKey(" "))
+		if (Utilities.sortByValues(leaderboard).containsKey(" "))
 			return true;
 		
 		return false;
@@ -145,38 +145,10 @@ public class LeaderboardPage extends JFrame implements ActionListener{
 			
 		}
 		
-		leaderboardMap = sortByValues(leaderboardMap);
+		leaderboardMap = Utilities.sortByValues(leaderboardMap);
 		
 		return leaderboardMap;
 		
-	}
-	
-	private static Map<String, Integer> sortByValues(Map<String, Integer> unsortedMap){
-		
-		//https://www.geeksforgeeks.org/sorting-a-hashmap-according-to-values/
-        List<Entry<String, Integer> > list =
-               new LinkedList<Entry<String, Integer> >(unsortedMap.entrySet());
-        
-		Collections.sort(list, new Comparator<Entry<String, Integer>>() {
-			public int compare(Entry<String, Integer> o1, Entry<String, Integer> o2) {
-				return (o2.getValue()).compareTo(o1.getValue());
-				
-			}
-		});
-		
-		Map<String, Integer> sortedMap = new LinkedHashMap<String, Integer>();
-		
-		for (int row = 0; row < PacManGame.LEADERBOARD_MAX_ROWS; row++) {
-			
-			if (sortedMap.size() == list.size()) break;
-			
-			Entry<String, Integer> entry = list.get(row);
-            sortedMap.put(entry.getKey(), entry.getValue());
-            
-		}
-//      
-
-        return sortedMap;
 	}
 
 	@Override

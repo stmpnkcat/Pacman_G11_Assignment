@@ -18,11 +18,6 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 	// Create a timer for the game using the time between ticks
 	private Timer gameTimer = new Timer(PacManGame.TIME_BETWEEN_TICKS, this);
 	
-	private Timer stopwatch = new Timer(1, this);
-	
-	// Create a stopwatch for the game in milliseconds
-	private int elapsedTimeInMS = 0;
-	
 	private int tickCount = 0;
 	
 	// Create a new cell matrix to store every cell on the screen
@@ -39,6 +34,12 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 	
 	// Create a variable to track the number of pellets eaten
 	private int pelletsEaten = 0;
+	
+	private Timer cherryTimer = new Timer(PacManGame.CHERRY_SPAWN_TIME, this);
+	
+	private int cherriesSpawned = 0;
+	
+	private boolean cherryOnBoard = false;
 	
 	// Create a score to keep track of the player's score
 	private int score = 0;
@@ -151,6 +152,9 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 				
 				if (!gameTimer.isRunning()) {
 					gameTimer.start();
+					
+					if (cherriesSpawned < 3 && !cherryOnBoard)
+						cherryTimer.start();
 				}
 				
 				// Initialize the displacements in row and column
@@ -196,8 +200,6 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 		// Set the current and next cell to the cell in the array
 		Cell currentCell = mazeMatrix[mover.getRow()][mover.getColumn()];
 		Cell nextCell = mazeMatrix[mover.getNextRow()][mover.getNextColumn()];
-		
-
 		
 		// Move them mover to the other side if they use the teleporter
 		if (mover.getColumn() == 1) {
@@ -251,6 +253,9 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 				else if (currentCell.getId() == PacManGame.ID_BIG_FOOD)
 					currentCell.setIcon(Icons.BIG_FOOD);
 				
+				else if (currentCell.getId() == PacManGame.ID_CHERRY)
+					currentCell.setIcon(Icons.CHERRY);
+				
 				else
 					currentCell.setIcon(Icons.BLANK);
 				
@@ -280,7 +285,7 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 					
 					frame.updateScore(score);
 					
-					Sounds.playSound("sounds/eat_dot_0.wav");
+					Sounds.playSound("sounds/fruit_eaten.wav");
 					
 					for (Ghost ghost : ghostArray) {
 						
@@ -299,6 +304,21 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 					}
 					else 
 						vulnerableTimer.start();
+					
+				} else if (nextCell.getId() == PacManGame.ID_CHERRY) {
+					
+					nextCell.setId(PacManGame.ID_EMPTY);
+					
+					score += PacManGame.SCORE_CHERRY;
+					
+					frame.updateScore(score);
+					
+					Sounds.playSound("sounds/fruit_eaten.wav");
+					
+					cherryOnBoard = false;
+					
+					if (cherriesSpawned < 3)
+						cherryTimer.start();
 					
 				}
 				
@@ -324,6 +344,8 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 					return;
 					
 				} else {
+
+					Sounds.playSound("sounds/fruit_eaten.wav");
 					
 					score += PacManGame.SCORE_GHOST;
 					ghostDeath(collidedGhost);
@@ -347,6 +369,7 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 	private void death() {
 		
 		gameTimer.stop();
+		cherryTimer.stop();
 		
 		// Set the pacman to dead
 		pacMan.setDead(true);
@@ -454,18 +477,34 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 			
 		}
 	}
+	
+	private void spawnCherry() {
+
+		int randRow = -1;
+		int randColumn = -1;
+		
+		do {
+			
+			randRow = (int) (Math.random() * PacManGame.ROWS);
+			randColumn = (int) (Math.random() * PacManGame.COLUMNS);
+			
+		} while (mazeMatrix[randRow][randColumn].getId() != PacManGame.ID_EMPTY || 
+				getIdOfMover(randRow, randColumn) == PacManGame.ID_PLAYER ||
+				(randRow > 10 && randRow <= 14 && randColumn > 10 && randColumn <= 17));
+		
+		mazeMatrix[randRow][randColumn].setId(PacManGame.ID_CHERRY);
+		mazeMatrix[randRow][randColumn].setIcon(Icons.CHERRY);
+		
+		cherriesSpawned++;
+		
+	}
 
 	// This method calls on other methods when the game is running
 	public void actionPerformed(ActionEvent event) {
 		
-		// Check if a tick has passed
-		if (event.getSource() == stopwatch)
-			elapsedTimeInMS++;
-		
-		else if (event.getSource() == gameTimer) {
+		if (event.getSource() == gameTimer) {
 			
 			tickCount++;
-			System.out.println(tickCount);
 			
 			if (tickCount % 5 == 0)
 				performMove(pacMan);
@@ -481,9 +520,7 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 					System.out.println(mazeMatrix[ghostArray[i].getRow()][ghostArray[i].getColumn()]);
 					
 					mazeMatrix[ghostArray[i].getRow()][ghostArray[i].getColumn()].setIdIcon(mazeMatrix[ghostArray[i].getRow()][ghostArray[i].getColumn()].getId());
-					
-					System.out.println(mazeMatrix[ghostArray[i].getRow()][ghostArray[i].getColumn()].getIcon());
-					
+										
 					ghostArray[i].setRow(ghostArray[i].getDefaultRow());
 					ghostArray[i].setColumn(ghostArray[i].getDefaultColumn());
 					ghostArray[i].setIcon(Icons.GHOST[i]); 
@@ -520,6 +557,13 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 				ghostArray[i].setIcon(Icons.GHOST[i]);
 				
 			}
+			
+		} else if (event.getSource() == cherryTimer) {
+			
+			spawnCherry();
+			cherryOnBoard = true;
+			cherryTimer.stop();
+			
 		}
 		
 	}
@@ -529,28 +573,6 @@ public class Board extends JPanel implements KeyListener, ActionListener{
 		gameTimer.stop();
 		
 		frame.dispose();
-		
-		createEndScreen();
-		
-//		frame.dispose();
-//		
-//		createEndScreen();
-//
-//		try (Writer writer = new BufferedWriter(new OutputStreamWriter(
-//	              new FileOutputStream("leaderboards/medium_difficulty.txt"), "utf-8"))) {
-//			
-//			writer.write(score);
-//			
-//		} catch (IOException e) {
-//			
-//			System.err.println(e);
-//			e.printStackTrace();
-//			
-//		}
-		
-	}
-	
-	private void createEndScreen() {
 		
 		new EndPage(score);
 		

@@ -5,9 +5,7 @@ public class Ghost extends Mover{
 	private Board board;
 	
 	private Cell[][] mazeMatrix;
-	
-	private double randomInterval;
-	
+		
 	private boolean isVulnerable;
 	
 	private int vulnerableTime = 0;
@@ -19,8 +17,6 @@ public class Ghost extends Mover{
 		this.board = board;
 		
 		mazeMatrix = getMazeMatrix();
-		
-		randomInterval = Math.random() * 9;
 		
 	}
 	
@@ -84,14 +80,6 @@ public class Ghost extends Mover{
 		if (!directionSequence.isEmpty())
 			this.setDirection(directionSequence.pop());
 		
-	}
-
-	public double getRandomInterval() {
-		return randomInterval;
-	}
-
-	public void setRandomInterval(double randomInterval) {
-		this.randomInterval = randomInterval;
 	}
 
 	public boolean isVulnerable() {

@@ -28,7 +28,7 @@ public class EndPage extends JFrame implements ActionListener{
 		
 		this.score = score;
 		
-		TitlePage.formatFrame(this);
+		Utilities.formatFrame(this);
 	    setLayout(null);
 	    
 		JLabel scoreLabel = new JLabel("FINAL SCORE             " + score, SwingConstants.CENTER);
@@ -97,15 +97,18 @@ public class EndPage extends JFrame implements ActionListener{
 			
 		} else {
 			
-			JLabel messageLabel = new JLabel ("you didnt beat the high score");
+			JLabel messageLabel = new JLabel ("you didnt beat the high score", SwingConstants.CENTER);
 			messageLabel.setFont(Fonts.font_small);
 			messageLabel.setForeground(Color.WHITE);
+			messageLabel.setBackground(Color.BLACK);
+			
+			messageLabel.setBounds(50, 300, 500, 50);
 			add(messageLabel);
 			
 		}
 		
 		JButton confirmButton = new JButton("CONFIRM");
-		JPanel confirmButtonPanel = TitlePage.formatButton(this, confirmButton);
+		JPanel confirmButtonPanel = Utilities.formatButton(this, confirmButton);
 
 		confirmButtonPanel.setBounds(100, 520, 300, 50);
 		add(confirmButtonPanel);
@@ -119,10 +122,11 @@ public class EndPage extends JFrame implements ActionListener{
 			
 			String name = nameTextField.getText().toUpperCase().replace(' ', '_');
 			
-			if (!name.equals("")) {
+			if (!name.equals("") || name.length() > 9) {
 				
 				try {
 					
+					//https://stackoverflow.com/questions/1625234/how-to-append-text-to-an-existing-file-in-java
 					Files.write(Paths.get("leaderboards/maze_1.txt"), (name + " " + score + "\n").getBytes(), StandardOpenOption.APPEND);
 					
 				} catch (IOException e1) {

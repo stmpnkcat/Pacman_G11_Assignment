@@ -29,7 +29,7 @@ public class PacManGUI extends JFrame {
 	public PacManGUI() {
 		
 		// Set size and title of the frame
-		TitlePage.formatFrame(this);
+		Utilities.formatFrame(this);
 		setLayout(new BorderLayout());
 		
 		// Add the board to the main board GUI

@@ -9,6 +9,7 @@ public class Fonts {
 	public static Font font_small;
 	
 	public static void createFonts () {
+		
 		//https://stackoverflow.com/questions/5652344/how-can-i-use-a-custom-font-in-java
 		try {
 			GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
@@ -24,5 +25,7 @@ public class Fonts {
 		
 		font_big = arcade_classic.deriveFont(40f);
 		font_small = arcade_classic.deriveFont(30f);
+		
 	}
+	
 }
